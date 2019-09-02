@@ -243,27 +243,29 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
         {
           if(aMu.pt()<minMuPt_ || fabs(aMu.eta())>maxMuEta_) continue;
 
-          if(MuonIDloose(aMu,vtx_h->at(0)))
+          //if(MuonIDloose(aMu,vtx_h->at(0)))//orginial line, changing to compare until I fix the NMuons part 
+	  if(MuonIDtight(aMu,vtx_h->at(0)))
             {
               idMuons->push_back(aMu);
               muIDMedium->push_back(MuonIDmedium(aMu,vtx_h->at(0)));
               muIDTight->push_back(MuonIDtight(aMu,vtx_h->at(0)));
-              muIDMTW->push_back(MTWCalculator(metLorentz.pt(),metLorentz.phi(),aMu.pt(),aMu.phi()));
+              //muIDMTW->push_back(MTWCalculator(metLorentz.pt(),metLorentz.phi(),aMu.pt(),aMu.phi()));
               MuonCharge->push_back(aMu.charge());
-              float ChgIso=aMu.pfIsolationR04().sumChargedHadronPt;
-              float ChgPU=aMu.pfIsolationR04().sumPUPt;
-              float NeuIso=aMu.pfIsolationR04().sumNeutralHadronEt+aMu.pfIsolationR04().sumPhotonEt;
-              double dBIsoMu= (ChgIso+std::max(0., NeuIso-0.5*ChgPU))/aMu.pt();
-              if(useMiniIsolation_) {
-                double mt2_act = 0.0;
-                SUSYIsolationHelper.GetMiniIsolation(pfcands, &aMu, SUSYIsolation::muon, rho, dBIsoMu, mt2_act);
-              }
-              muIDPassIso->push_back(dBIsoMu<muIsoValue_);
-              if(muIDPassIso->back() and muIDMedium->back())
-                {
-                  nmuons++;
-                  isoMuons->push_back(aMu);
-                }
+	      nmuons++;
+              //float ChgIso=aMu.pfIsolationR04().sumChargedHadronPt;
+              //float ChgPU=aMu.pfIsolationR04().sumPUPt;
+              //float NeuIso=aMu.pfIsolationR04().sumNeutralHadronEt+aMu.pfIsolationR04().sumPhotonEt;
+              //double dBIsoMu= (ChgIso+std::max(0., NeuIso-0.5*ChgPU))/aMu.pt();
+              //if(useMiniIsolation_) {
+	      //double mt2_act = 0.0;
+	      //SUSYIsolationHelper.GetMiniIsolation(pfcands, &aMu, SUSYIsolation::muon, rho, dBIsoMu, mt2_act);
+              //}
+              //muIDPassIso->push_back(dBIsoMu<muIsoValue_);
+              //if(muIDPassIso->back() and muIDMedium->back())
+	      // {
+              //    nmuons++;
+              //    isoMuons->push_back(aMu);
+              //  }
             }
         }
     }

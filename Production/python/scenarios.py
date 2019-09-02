@@ -254,6 +254,34 @@ class Scenario:
                 era="Run2_2018",
                 localera="TM2018",
             )
+        elif sname == "Hirosky2017_SigSamples":
+            self.set_vars(
+                globaltag="94X_mc2017_realistic_v3",
+                tagname="PAT",
+                hlttagname="HLT",
+                geninfo=True,
+                signal=True,
+                jecfile="data/jec/Fall17_17Nov2017_V32_102X_MC",#do not know if right
+                jerfile="data/jer/Fall17_V3_94X_MC",#do not know if right
+                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",#do not know if right
+                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                era="Run2_2017",
+                localera="TM2017",
+            )
+        elif sname == "Hirosky2017_Bkg":
+            self.set_vars(
+                globaltag="94X_mc2017_realistic_v14-v1",
+                tagname="PAT",
+                hlttagname="HLT",
+                geninfo=True,
+                signal=True,
+                jecfile="data/jec/Fall17_17Nov2017_V32_102X_MC",#do not know if right
+                jerfile="data/jer/Fall17_V3_94X_MC",#do not know if right
+                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",#do not know if right
+                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                era="Run2_2017",
+                localera="TM2017",
+            )
         else: # if no recognized scenario, cannot go forward
             raise ValueError('Unknown scenario name: '+sname)
 

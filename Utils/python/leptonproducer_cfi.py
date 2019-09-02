@@ -29,7 +29,7 @@ leptonproducer = cms.EDProducer('LeptonProducer',
     hovere_constant                        = cms.bool(True),
     electronEAValues                       = cms.vdouble(0.1752, 0.1862, 0.1411, 0.1534, 0.1903, 0.2243, 0.2687),
     #muons
-    minMuPt                                = cms.double(10),
+    minMuPt                                = cms.double(20),#gec cut
     maxMuEta                               = cms.double(2.4),
     muIsoValue                             = cms.double(0.2), #loose (<0.40), medium (<0.20), tight (<0.10), very tight (<0.05)
     muonEAValues                           = cms.vdouble(0.0735, 0.0619, 0.0465, 0.0433, 0.0577),

@@ -53,12 +53,13 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
             jerUncDir=0,
             storeJer=2,
         )
-    
+    print "||||||| did smearing |||||||"
     # get puppi-specific multiplicities
     from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
     process.puppiSpecificAK8Clean = patPuppiJetSpecificProducer.clone(
         src = JetAK8CleanTag
     )
+    print "||||||| did Ak8 cleaing ||||||||"
     # update userfloats (used for jet ID, including ID for JEC/JER variations)
     from TreeMaker.TreeMaker.addJetInfo import addJetInfo
     process, JetAK8CleanTag = addJetInfo(process, JetAK8CleanTag,
@@ -74,7 +75,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         doDeepDoubleB=False, # currently disabled
         puppiSpecific="puppiSpecificAK8Clean",
     )
-
+    print "|||||||| did Jet Vars Ak8 |||||||"
     # update some userfloat names
     process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiCleanPrunedMass')
     process.JetPropertiesAK8Clean.softDropMass = cms.vstring('SoftDrop')
@@ -99,7 +100,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         cut = cms.string("fromPV")
     )
     setattr(process,"cleanedCandidatesCHS"+suff,cleanedCandidatesCHS)
-
+    print "||||||| filtered for cleaned stuff |||||||"
     # make the RECO jets 
     from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
     ak4PFJetsClean = ak4PFJets.clone(
@@ -107,6 +108,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         doAreaFastjet = True
     )
     setattr(process,"ak4PFJetsClean"+suff,ak4PFJetsClean)
+    print "||||||| clean Ak4 Jets ||||||||"
 
     # turn the RECO jets into PAT jets
     # for a full list & description of parameters see:
@@ -132,6 +134,8 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
        muSource = cms.InputTag("slimmedMuons"),
        elSource = cms.InputTag("slimmedElectrons")
     )
+
+    print "||||||| got passed that residual stuff |||||||"
     # turn on/off GEN matching
     getattr(process,'patJetsAK4PFCLEAN'+suff).addGenPartonMatch = cms.bool(False)
     getattr(process,'patJetsAK4PFCLEAN'+suff).addGenJetMatch = cms.bool(False)
@@ -146,6 +150,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     )
     setattr(process,'reclusteredJets'+suff,reclusteredJets)
     JetTagClean = cms.InputTag("reclusteredJets"+suff)
+    print "||||||| did a jet cut |||||||"
 
     # recalculate MET from cleaned candidates and reclustered jets
     postfix="clean"+suff
@@ -178,6 +183,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     else:
         METTagOrig = None
     
+    print "|||||| recalculated MET |||||||"
     # isolated tracks
     from TreeMaker.Utils.trackIsolationMaker_cfi import trackIsolationFilter
 
@@ -226,7 +232,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     self.VarsInt.extend(['IsolatedElectronTracksVetoClean'+suff+':isoTracks(isoElectronTracksclean'+suff+')'])
     self.VarsInt.extend(['IsolatedMuonTracksVetoClean'+suff+':isoTracks(isoMuonTracksclean'+suff+')'])
     self.VarsInt.extend(['IsolatedPionTracksVetoClean'+suff+':isoTracks(isoPionTracksclean'+suff+')'])
-
+    print "||||||| finished isolation stuff, now doing smearing |||||||"
     if doJERsmearing:
         # do central smearing and replace jet tag
         process, _, JetTagClean = JetDepot(process,
@@ -236,16 +242,17 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
             jerUncDir=0,
             storeJer=2,
         )
-    
+    print "||||||| making event variables |||||||"
     # make the event variables
-    process = self.makeJetVars(
-        process,
-        JetTag = JetTagClean,
-        suff=postfix,
-        storeProperties=1,
-        METfix=self.doMETfix,
-    )
-
+    # commenting out stuff that is breakinf
+    #process = self.makeJetVars(
+    #    process,
+    #    JetTag = JetTagClean,
+    #    suff=postfix,
+    #    storeProperties=1,
+    #    METfix=self.doMETfix,
+    #)
+    print "||||||| more MET stuff, ugh |||||||"
     from TreeMaker.Utils.metdouble_cfi import metdouble
     METclean = metdouble.clone(
        METTag = METTag,
@@ -254,7 +261,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     setattr(process,"METclean"+suff,METclean)
     self.VarsDouble.extend(['METclean'+suff+':Pt(METclean'+suff+')','METclean'+suff+':Phi(METPhiclean'+suff+')','METclean'+suff+':Significance(METSignificanceclean'+suff+')'])
 #    self.VarsDouble.extend(['METclean'+suff+':RawPt(RawMETclean'+suff+')','METclean'+suff+':RawPhi(RawMETPhiclean'+suff+')'])
-
+    print "||||||| probably problematic met ||||||"
     if self.doMETfix:
         METcleanOrig = METclean.clone(
             METTag = METTagOrig
@@ -262,6 +269,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         setattr(process,"METclean"+suff+"Orig",METcleanOrig)
         self.VarsDouble.extend(['METclean'+suff+'Orig:Pt(METclean'+suff+'Orig)','METclean'+suff+'Orig:Phi(METPhiclean'+suff+'Orig)'])
 #        self.VarsDouble.extend(['METclean'+suff+'Orig:RawPt(RawMETclean'+suff+'Orig)','METclean'+suff+'Orig:RawPhi(RawMETPhiclean'+suff+'Orig)'])
+    print "||||||| Finished Reclustering |||||||"
 
     return process
 
@@ -318,7 +326,7 @@ def doZinvBkg(self,process):
     from TreeMaker.Utils.zproducer_cfi import ZProducer
     process.makeTheZs = ZProducer.clone(
         ElectronTag = cms.InputTag('LeptonsNew:IdIsoElectron'),
-        MuonTag     = cms.InputTag('LeptonsNew:IdIsoMuon')
+        MuonTag     = cms.InputTag('LeptonsNew:IdMuon')
     )
     self.VectorRecoCand.append("makeTheZs:ZCandidates")
 
@@ -328,10 +336,9 @@ def doZinvBkg(self,process):
 
     # combine leptons
     process.selectedLeptons = cms.EDProducer("CandViewMerger",
-        src = cms.VInputTag("LeptonsNew:IdIsoElectron","LeptonsNew:IdIsoMuon")
+        src = cms.VInputTag("LeptonsNew:IdIsoElectron","LeptonsNew:IdMuon")
     )
-    
-    # if there are no leptons in the event, just remove high-pt photons (GJet)
+        # if there are no leptons in the event, just remove high-pt photons (GJet)
     # otherwise, just remove leptons (DY)
     process.selectedXons = cms.EDProducer("CandPtrPrefer",
         first = cms.InputTag("selectedLeptons"), second = cms.InputTag("goodPhotons","highpt")
