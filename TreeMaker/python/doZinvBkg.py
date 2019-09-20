@@ -329,6 +329,7 @@ def doZinvBkg(self,process):
         MuonTag     = cms.InputTag('LeptonsNew:IdMuon')
     )
     self.VectorRecoCand.append("makeTheZs:ZCandidates")
+    self.VectorRecoCand.append("makeTheZs:SelectedMuons")
 
     ###
     # do the new cleaning

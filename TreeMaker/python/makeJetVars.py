@@ -41,15 +41,15 @@ def makeGoodJets(self, process, JetTag, suff, storeProperties, SkipTag=cms.VInpu
     GoodJets = (GoodJetsPuppiProducer if jetConeSize==0.8 else GoodJetsProducer).clone(
         TagMode                   = cms.bool(True),
         JetTag                    = JetTag,
-        jetPtFilter               = cms.double(170 if jetConeSize==0.8 else 30),
+        jetPtFilter               = cms.double(170 if jetConeSize==0.8 else 30),#made 250 was 170
         ExcludeLepIsoTrackPhotons = cms.bool(True),
         JetConeSize               = cms.double(jetConeSize),
         SkipTag                   = SkipTag,
         SaveAllJetsId             = cms.bool(True),
         # keep lower-pt central jets in case they fluctuate up in systematic collections (for all)
-        SaveAllJetsPt             = cms.bool(True),
+        SaveAllJetsPt             = cms.bool(True),#originally true
         # keep all eta jets to preserve ordering
-        maxJetEta                 = cms.double(-1),
+        maxJetEta                 = cms.double(-1),#originally -1
     )
     if len(puppiSpecific)>0: GoodJets.puppiPrefix = puppiSpecific
     setattr(process,"GoodJets"+suff,GoodJets)

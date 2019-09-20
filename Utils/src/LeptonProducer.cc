@@ -155,6 +155,7 @@ LeptonProducer::LeptonProducer(const edm::ParameterSet& iConfig):
   SUSYIsolationHelper.SetEAVectors(electronEAValues_, muonEAValues_);
 
   produces<std::vector<pat::Muon>>("IdMuon");
+
   produces<std::vector<bool>>("IdMuonMediumID");
   produces<std::vector<bool>>("IdMuonTightID");
   produces<std::vector<int>>("IdMuonCharge");

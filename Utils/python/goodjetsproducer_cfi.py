@@ -56,6 +56,8 @@ GoodJetsPuppiProducer = GoodJetsProducer.clone(
     etamax    = cms.vdouble(  2.7,  2.7, 2.7,  2.4, 2.4,  2.4, 3.0, -1.0,-1.0),
     cutvalmin = cms.vdouble( -1.0, -1.0, 1.0,  0.0, 0.0, -1.0, 1.0,  0.5, 2.0),
     cutvalmax = cms.vdouble( 0.99, 0.99,-1.0, -1.0,-1.0, 0.99,-1.0, -1.0,-1.0),
+
+    jetPtFilter = cms.double(250.),
 )
 
 TMeras.TM2017.toModify(GoodJetsPuppiProducer,
