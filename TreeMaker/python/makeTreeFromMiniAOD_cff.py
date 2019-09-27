@@ -137,17 +137,22 @@ def makeTreeFromMiniAOD(self,process):
             process.genParticles = cms.EDProducer("GenParticlesProducer",
                 genCollection = cms.InputTag("prunedGenParticles"),
                 debug = cms.bool(False),
+                #original
                 # Particles we want to save from the decay chain of the tops
-                childIds = cms.vint32(1,2,3,4,5,11,12,13,14,15,16,24),
+                #childIds = cms.vint32(1,2,3,4,5,11,12,13,14,15,16,24),
                 # Particles we want to save the last copy from the hard scatter
-                parentIds = cms.vint32(
-                    6,22,23,24,25,
-                    1000021,1000022,1000023,1000024,1000025,1000035,1000037,1000039,
-                    1000001,1000002,1000003,1000004,1000005,1000006,
-                    2000001,2000002,2000003,2000004,2000005,2000006,
-                    4900021,4900023,4900101,4900102,4900111,4900113,4900211,4900213,51,52,53,
-                    5000001,5000002,
-                ),
+                #parentIds = cms.vint32(
+                #    6,22,23,24,25,
+                #    1000021,1000022,1000023,1000024,1000025,1000035,1000037,1000039,
+                #    1000001,1000002,1000003,1000004,1000005,1000006,
+                #    2000001,2000002,2000003,2000004,2000005,2000006,
+                #    4900021,4900023,4900101,4900102,4900111,4900113,4900211,4900213,51,52,53,
+                #    5000001,5000002,
+                #),
+                #Particles we want to keep from the decays of the ND anomalons
+                childIds = cms.vint32(23,25,13,5,9936663),
+                #Other interesting particles
+                parentIds = cms.vint32(9906663,9936662),
                 # Other settings
                 keepIds = cms.vint32(),
                 keepFirst = cms.bool(False),
@@ -157,15 +162,17 @@ def makeTreeFromMiniAOD(self,process):
             process.genParticles = cms.EDProducer("GenParticlesProducer",
                 genCollection = cms.InputTag("prunedGenParticles"),
                 debug = cms.bool(False),
-                childIds = cms.vint32(1,2,3,4,5,11,12,13,14,15,16,22),
-                parentIds = cms.vint32(
-                    1,2,6,23,24,25,
-                    1000021,1000022,1000023,1000024,1000025,1000035,1000037,1000039,
-                    1000001,1000002,1000003,1000004,1000005,1000006,
-                    2000001,2000002,2000003,2000004,2000005,2000006,
-                    4900021,4900023,4900101,4900102,4900111,4900113,4900211,4900213,51,52,53,
-                    5000001,5000002,
-                ),
+                #childIds = cms.vint32(1,2,3,4,5,11,12,13,14,15,16,22),
+                #parentIds = cms.vint32(
+                #    1,2,6,23,24,25,
+                #    1000021,1000022,1000023,1000024,1000025,1000035,1000037,1000039,
+                #    1000001,1000002,1000003,1000004,1000005,1000006,
+                #    2000001,2000002,2000003,2000004,2000005,2000006,
+                #    4900021,4900023,4900101,4900102,4900111,4900113,4900211,4900213,51,52,53,
+                #    5000001,5000002,
+                #),
+                childIds = cms.vint32(23,25,13,5,9936663),
+                parentIds = cms.vint32(9906663,9936662),
                 keepIds = cms.vint32(6,23,24,25),
                 keepFirst = cms.bool(True),
                 keepMinimal = cms.bool(False),

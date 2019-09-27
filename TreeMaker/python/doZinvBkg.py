@@ -336,8 +336,10 @@ def doZinvBkg(self,process):
     ###
 
     # combine leptons
+    # GEC - might be able to do both electronca and muons here in hte future
     process.selectedLeptons = cms.EDProducer("CandViewMerger",
-        src = cms.VInputTag("LeptonsNew:IdIsoElectron","LeptonsNew:IdMuon")
+        #src = cms.VInputTag("LeptonsNew:IdIsoElectron","LeptonsNew:IdMuon")
+        src = cms.VInputTag("makeTheZs:SelectedMuons")
     )
         # if there are no leptons in the event, just remove high-pt photons (GJet)
     # otherwise, just remove leptons (DY)
