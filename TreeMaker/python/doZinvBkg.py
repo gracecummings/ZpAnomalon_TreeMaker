@@ -23,13 +23,17 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         'jetSequence',
         'out',
         PUMethod = 'Puppi',
-        miniAOD = True,
+        #miniAOD = True,
         runOnMC = self.geninfo,
         postFix='Clean',
         newPFCollection = True,
         nameNewPFCollection = cleanedCandidates.value(),
         Cut = 'pt>170.',
         addPruning = True,
+        #below is new
+        addSoftDrop = True,
+        subJETCorrPayload = 'AK4PFPuppi',
+        #end new
         addSoftDropSubjets = True,
         addNsub = True,
         maxTau = 3,
@@ -43,6 +47,24 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         verbosity = 2 if self.verbose else 0,
     )
     JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiCleanSoftDrop")
+
+    #GEC hoping to add deep taggers
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
+    updateJetCollection(
+        process,
+        jetSource=cms.InputTag('packedPatJetsAK8PFPuppiSoftDrop'),#from fragment
+        #jetSource = JetAK8CleanTag,
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        rParam=0.8,
+        jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
+        btagDiscriminators = _pfDeepBoostedJetTagsAll,
+        postfix='AK8WithPuppiDaughters',   # !!! postfix must contain "WithPuppiDaughter" !!!
+        printWarning = True,
+        )
+
+    #back to originial treemaker
 
     if doJERsmearing:
         # do central smearing and replace jet tag
