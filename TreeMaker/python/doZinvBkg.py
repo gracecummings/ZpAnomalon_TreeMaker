@@ -93,8 +93,9 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         suff='AK8Clean',
         storeProperties=1,
         doECFs=False, # currently disabled
-        doDeepAK8=False, # currently disabled
-        doDeepDoubleB=False, # currently disabled
+        #doDeepAK8=False, # currently disabled
+        doDeepAK8=True, 
+        doDeepDoubleB=True, #Toggled from original 
         puppiSpecific="puppiSpecificAK8Clean",
     )
     print "|||||||| did Jet Vars Ak8 |||||||"
