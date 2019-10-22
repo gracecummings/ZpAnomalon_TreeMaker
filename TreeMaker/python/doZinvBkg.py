@@ -20,18 +20,20 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     if self.residual: jecLevels.append("L2L3Residual")
     jetToolbox(process,
         'ak8',
-        'jetSequence',
+        #'jetSequence',
+        'dummySeqAK8',
         'out',
         PUMethod = 'Puppi',
-        #miniAOD = True,
+        miniAOD = True,
         runOnMC = self.geninfo,
-        postFix='Clean',
+        postFix='WithPuppiDaughterClean',#Added WIthPuppiDaughter
         newPFCollection = True,
         nameNewPFCollection = cleanedCandidates.value(),
         Cut = 'pt>170.',
         addPruning = True,
         #below is new
         addSoftDrop = True,
+        JETCorrPayload='AK8PFPuppi',
         subJETCorrPayload = 'AK4PFPuppi',
         #end new
         addSoftDropSubjets = True,
@@ -53,7 +55,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
     updateJetCollection(
         process,
-        jetSource=cms.InputTag('packedPatJetsAK8PFPuppiSoftDrop'),#from fragment
+        jetSource=cms.InputTag('packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop'),#from fragment
         #jetSource = JetAK8CleanTag,
         pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
         svSource = cms.InputTag('slimmedSecondaryVertices'),
@@ -61,7 +63,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
         btagDiscriminators = _pfDeepBoostedJetTagsAll,
         postfix='AK8WithPuppiDaughters',   # !!! postfix must contain "WithPuppiDaughter" !!!
-        printWarning = True,
+        printWarning = False,
         )
 
     #back to originial treemaker
@@ -75,13 +77,13 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
             jerUncDir=0,
             storeJer=2,
         )
-    print "||||||| did smearing |||||||"
+
     # get puppi-specific multiplicities
     from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
     process.puppiSpecificAK8Clean = patPuppiJetSpecificProducer.clone(
         src = JetAK8CleanTag
     )
-    print "||||||| did Ak8 cleaing ||||||||"
+
     # update userfloats (used for jet ID, including ID for JEC/JER variations)
     from TreeMaker.TreeMaker.addJetInfo import addJetInfo
     process, JetAK8CleanTag = addJetInfo(process, JetAK8CleanTag,
@@ -98,7 +100,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         doDeepDoubleB=True, #Toggled from original 
         puppiSpecific="puppiSpecificAK8Clean",
     )
-    print "|||||||| did Jet Vars Ak8 |||||||"
+
     # update some userfloat names
     process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiCleanPrunedMass')
     process.JetPropertiesAK8Clean.softDropMass = cms.vstring('SoftDrop')
@@ -377,7 +379,7 @@ def doZinvBkg(self,process):
     # the corresponding non-clean branches should be used instead for those events
     process.cleanedCandidates =  cms.EDProducer("PackedCandPtrProjector",
         src = cms.InputTag("packedPFCandidates"), veto = cms.InputTag("selectedXons"),
-        putEmpty = cms.bool(True)
+        putEmpty = cms.bool(False)
     )
     
     # make reclustered jets
