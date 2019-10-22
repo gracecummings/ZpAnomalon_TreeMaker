@@ -20,8 +20,8 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     if self.residual: jecLevels.append("L2L3Residual")
     jetToolbox(process,
         'ak8',
-        #'jetSequence',
-        'dummySeqAK8',
+        'jetSequence',
+        #'dummySeqAK8',
         'out',
         PUMethod = 'Puppi',
         miniAOD = True,
@@ -48,7 +48,8 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         associateTask = False,
         verbosity = 2 if self.verbose else 0,
     )
-    JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiCleanSoftDrop")
+    JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop")
+    #JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiCleanSoftDrop")
 
     #GEC hoping to add deep taggers
     from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
@@ -102,16 +103,29 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     )
 
     # update some userfloat names
-    process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiCleanPrunedMass')
+    process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiWithPuppiDaughterCleanPrunedMass')
     process.JetPropertiesAK8Clean.softDropMass = cms.vstring('SoftDrop')
-    process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8PuppiClean:tau1')
-    process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8PuppiClean:tau2')
-    process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8PuppiClean:tau3')
+    process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8PuppiWithPuppiDaughterClean:tau1')
+    process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8PuppiWithPuppiDaughterClean:tau2')
+    process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8PuppiWithPuppiDaughterClean:tau3')
     process.JetPropertiesAK8Clean.subjets = cms.vstring('SoftDrop')
     process.JetPropertiesAK8Clean.SJbDiscriminatorCSV = cms.vstring('SoftDrop','pfCombinedInclusiveSecondaryVertexV2BJetTags')
     process.JetPropertiesAK8Clean.neutralHadronPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralHadronPuppiMultiplicity")
     process.JetPropertiesAK8Clean.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralPuppiMultiplicity")
     process.JetPropertiesAK8Clean.photonPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:photonPuppiMultiplicity")
+
+
+
+    #process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiCleanPrunedMass')
+    #process.JetPropertiesAK8Clean.softDropMass = cms.vstring('SoftDrop')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8PuppiClean:tau1')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8PuppiClean:tau2')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8PuppiClean:tau3')
+    #process.JetPropertiesAK8Clean.subjets = cms.vstring('SoftDrop')
+    #process.JetPropertiesAK8Clean.SJbDiscriminatorCSV = cms.vstring('SoftDrop','pfCombinedInclusiveSecondaryVertexV2BJetTags')
+    #process.JetPropertiesAK8Clean.neutralHadronPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralHadronPuppiMultiplicity")
+    #process.JetPropertiesAK8Clean.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralPuppiMultiplicity")
+    #process.JetPropertiesAK8Clean.photonPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:photonPuppiMultiplicity")
 #    process.JetPropertiesAK8Clean.ecfN2b1 = cms.vstring('ak8PFJetsPuppiCleanSoftDropValueMap:nb1AK8PuppiCleanSoftDropN2')
 #    process.JetPropertiesAK8Clean.ecfN3b1 = cms.vstring('ak8PFJetsPuppiCleanSoftDropValueMap:nb1AK8PuppiCleanSoftDropN3')
 #    process.JetPropertiesAK8Clean.ecfN2b2 = cms.vstring('ak8PFJetsPuppiCleanSoftDropValueMap:nb2AK8PuppiCleanSoftDropN2')
