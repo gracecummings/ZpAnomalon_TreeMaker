@@ -16,33 +16,78 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     listBtagDiscriminatorsSubjetAK8 = [
         'pfCombinedInclusiveSecondaryVertexV2BJetTags',
     ]
-    jecLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
-    if self.residual: jecLevels.append("L2L3Residual")
+    #jecLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
+    jecLevels = ['L2Relative', 'L3Absolute','L2L3Residual']
+    #if self.residual: jecLevels.append("L2L3Residual")
     jetToolbox(process,
         'ak8',
         'jetSequence',
-        'out',
+        #'dummySeqAK8',
+        #'out',
+        'noOutput',
         PUMethod = 'Puppi',
+        JETCorrPayload='AK8PFPuppi',
+        JETCorrLevels=jecLevels,
+        Cut='pt > 170.0 && abs(rapidity()) < 2.4',
+        #SOme original stuff
         miniAOD = True,
         runOnMC = self.geninfo,
-        postFix='Clean',
+        postFix='WithPuppiDaughterClean',#Added WIthPuppiDaughter#grace added
         newPFCollection = True,
         nameNewPFCollection = cleanedCandidates.value(),
-        Cut = 'pt>170.',
-        addPruning = True,
+        #Cut = 'pt>170.',
+        #addPruning = True,
+        #below is new
+        addSoftDrop = True,
         addSoftDropSubjets = True,
-        addNsub = True,
-        maxTau = 3,
+        #JETCorrPayload='AK8PFPuppi',
+        subJETCorrPayload = 'AK4PFPuppi',
+        #end new
+        subJETCorrLevels=jecLevels,
+        #addNsub = True,
+        #maxTau = 3,
         bTagInfos = listBTagInfos, 
         bTagDiscriminators = listBtagDiscriminatorsAK8,
         subjetBTagDiscriminators = listBtagDiscriminatorsSubjetAK8,
-        JETCorrLevels = jecLevels,
-        subJETCorrLevels = jecLevels,
+        #JETCorrLevels = jecLevels,
+        #subJETCorrLevels = jecLevels,
         addEnergyCorrFunc = False,
-        associateTask = False,
+        #associateTask = False,
         verbosity = 2 if self.verbose else 0,
     )
-    JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiCleanSoftDrop")
+    JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop")
+    #JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiCleanSoftDrop")
+
+    #GEC hoping to add deep taggers
+    #Follows Option 2
+    #from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    #from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
+    #updateJetCollection(
+    #    process,
+    #    jetSource=cms.InputTag('packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop'),#from fragmen#
+   #     #jetSource = JetAK8CleanTag,
+   #     pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   #     svSource = cms.InputTag('slimmedSecondaryVertices'),
+   #     rParam=0.8,
+   #     jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
+   #     btagDiscriminators = _pfDeepBoostedJetTagsAll,
+   #     postfix='AK8WithPuppiDaughters',   # !!! postfix must contain "WithPuppiDaughter" !!!
+   #     printWarning = False,
+   #     )
+    #end option 2
+
+    #Option 3 for adding deep taggers
+    gecBTagDiscriminators = [
+      "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsLight",
+      "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ccvsLight",
+      "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD",
+      "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHccvsQCD",
+      "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD",
+                "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD"
+]
+
+    jetToolbox(process, 'ak8','jetSequence','out',updateCollection="packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop",bTagDiscriminators=gecBTagDiscriminators, JETCorrPayload="AK8PFPuppi")
+    #back to originial treemaker
 
     if doJERsmearing:
         # do central smearing and replace jet tag
@@ -53,13 +98,13 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
             jerUncDir=0,
             storeJer=2,
         )
-    print "||||||| did smearing |||||||"
+
     # get puppi-specific multiplicities
     from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
     process.puppiSpecificAK8Clean = patPuppiJetSpecificProducer.clone(
         src = JetAK8CleanTag
     )
-    print "||||||| did Ak8 cleaing ||||||||"
+
     # update userfloats (used for jet ID, including ID for JEC/JER variations)
     from TreeMaker.TreeMaker.addJetInfo import addJetInfo
     process, JetAK8CleanTag = addJetInfo(process, JetAK8CleanTag,
@@ -71,22 +116,36 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         suff='AK8Clean',
         storeProperties=1,
         doECFs=False, # currently disabled
-        doDeepAK8=False, # currently disabled
-        doDeepDoubleB=False, # currently disabled
+        #doDeepAK8=False, # currently disabled
+        doDeepAK8=True, 
+        doDeepDoubleB=True, #Toggled from original 
         puppiSpecific="puppiSpecificAK8Clean",
     )
-    print "|||||||| did Jet Vars Ak8 |||||||"
+
     # update some userfloat names
-    process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiCleanPrunedMass')
+    #process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiWithPuppiDaughterCleanPrunedMass')
     process.JetPropertiesAK8Clean.softDropMass = cms.vstring('SoftDrop')
-    process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8PuppiClean:tau1')
-    process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8PuppiClean:tau2')
-    process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8PuppiClean:tau3')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8PuppiWithPuppiDaughterClean:tau1')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8PuppiWithPuppiDaughterClean:tau2')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8PuppiWithPuppiDaughterClean:tau3')
     process.JetPropertiesAK8Clean.subjets = cms.vstring('SoftDrop')
     process.JetPropertiesAK8Clean.SJbDiscriminatorCSV = cms.vstring('SoftDrop','pfCombinedInclusiveSecondaryVertexV2BJetTags')
     process.JetPropertiesAK8Clean.neutralHadronPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralHadronPuppiMultiplicity")
     process.JetPropertiesAK8Clean.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralPuppiMultiplicity")
     process.JetPropertiesAK8Clean.photonPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:photonPuppiMultiplicity")
+
+
+
+    #process.JetPropertiesAK8Clean.prunedMass = cms.vstring('ak8PFJetsPuppiCleanPrunedMass')
+    #process.JetPropertiesAK8Clean.softDropMass = cms.vstring('SoftDrop')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8PuppiClean:tau1')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8PuppiClean:tau2')
+    #process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8PuppiClean:tau3')
+    #process.JetPropertiesAK8Clean.subjets = cms.vstring('SoftDrop')
+    #process.JetPropertiesAK8Clean.SJbDiscriminatorCSV = cms.vstring('SoftDrop','pfCombinedInclusiveSecondaryVertexV2BJetTags')
+    #process.JetPropertiesAK8Clean.neutralHadronPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralHadronPuppiMultiplicity")
+    #process.JetPropertiesAK8Clean.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralPuppiMultiplicity")
+    #process.JetPropertiesAK8Clean.photonPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:photonPuppiMultiplicity")
 #    process.JetPropertiesAK8Clean.ecfN2b1 = cms.vstring('ak8PFJetsPuppiCleanSoftDropValueMap:nb1AK8PuppiCleanSoftDropN2')
 #    process.JetPropertiesAK8Clean.ecfN3b1 = cms.vstring('ak8PFJetsPuppiCleanSoftDropValueMap:nb1AK8PuppiCleanSoftDropN3')
 #    process.JetPropertiesAK8Clean.ecfN2b2 = cms.vstring('ak8PFJetsPuppiCleanSoftDropValueMap:nb2AK8PuppiCleanSoftDropN2')
@@ -354,7 +413,7 @@ def doZinvBkg(self,process):
     # the corresponding non-clean branches should be used instead for those events
     process.cleanedCandidates =  cms.EDProducer("PackedCandPtrProjector",
         src = cms.InputTag("packedPFCandidates"), veto = cms.InputTag("selectedXons"),
-        putEmpty = cms.bool(True)
+        putEmpty = cms.bool(False)
     )
     
     # make reclustered jets
