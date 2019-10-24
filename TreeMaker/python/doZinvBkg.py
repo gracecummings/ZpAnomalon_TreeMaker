@@ -9,13 +9,13 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
 
     # https://twiki.cern.ch/CMS/JetToolbox
     from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
-    listBTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos','pfImpactParameterTagInfos'] 
-    listBtagDiscriminatorsAK8 = [
-         'pfBoostedDoubleSecondaryVertexAK8BJetTags',
-    ]
-    listBtagDiscriminatorsSubjetAK8 = [
-        'pfCombinedInclusiveSecondaryVertexV2BJetTags',
-    ]
+    #listBTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos','pfImpactParameterTagInfos'] 
+    #listBtagDiscriminatorsAK8 = [
+    #     'pfBoostedDoubleSecondaryVertexAK8BJetTags',
+    #]
+    #listBtagDiscriminatorsSubjetAK8 = [
+    #    'pfCombinedInclusiveSecondaryVertexV2BJetTags',
+    #]
     #jecLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
     jecLevels = ['L2Relative', 'L3Absolute','L2L3Residual']
     #if self.residual: jecLevels.append("L2L3Residual")
@@ -24,7 +24,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         'jetSequence',
         #'dummySeqAK8',
         #'out',
-        'noOutput',
+        'out',
         PUMethod = 'Puppi',
         JETCorrPayload='AK8PFPuppi',
         JETCorrLevels=jecLevels,
@@ -46,14 +46,14 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         subJETCorrLevels=jecLevels,
         #addNsub = True,
         #maxTau = 3,
-        bTagInfos = listBTagInfos, 
-        bTagDiscriminators = listBtagDiscriminatorsAK8,
-        subjetBTagDiscriminators = listBtagDiscriminatorsSubjetAK8,
+        #bTagInfos = listBTagInfos, 
+        #bTagDiscriminators = listBtagDiscriminatorsAK8,
+        #subjetBTagDiscriminators = listBtagDiscriminatorsSubjetAK8,
         #JETCorrLevels = jecLevels,
         #subJETCorrLevels = jecLevels,
         addEnergyCorrFunc = False,
         #associateTask = False,
-        verbosity = 2 if self.verbose else 0,
+        verbosity = 3 if self.verbose else 0,
     )
     JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop")
     #JetAK8CleanTag = cms.InputTag("packedPatJetsAK8PFPuppiCleanSoftDrop")
@@ -77,22 +77,29 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     #end option 2
 
     #Option 3 for adding deep taggers
+    listBTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos','pfImpactParameterTagInfos'] 
     gecBTagDiscriminators = [
       "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:bbvsLight",
       "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ccvsLight",
       "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:TvsQCD",
       "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHccvsQCD",
       "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD",
-                "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD"
+      "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD",
+      "pfBoostedDoubleSecondaryVertexAK8BJetTags",
+      "pfCombinedInclusiveSecondaryVertexV2BJetTags"
 ]
 
-    jetToolbox(process, 'ak8','jetSequence','out',updateCollection="packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop",bTagDiscriminators=gecBTagDiscriminators, JETCorrPayload="AK8PFPuppi")
+    jetToolbox(process, 'ak8','jetSequence','out',updateCollection="packedPatJetsAK8PFPuppiWithPuppiDaughterCleanSoftDrop",bTagDiscriminators=gecBTagDiscriminators, bTagInfos=listBTagInfos,JETCorrPayload="AK8PFPuppi",verbosity = 3,)
+
+    gecAK8Tag = JetAK8CleanTag#cms.InputTag("updatedPatJetsAK8PFPuppi")
     #back to originial treemaker
 
     if doJERsmearing:
         # do central smearing and replace jet tag
-        process, _, JetAK8CleanTag = JetDepot(process,
-            JetTag=JetAK8CleanTag,
+        #process, _, JetAK8CleanTag = JetDepot(process,
+        #    JetTag=JetAK8CleanTag,
+        process, _, gecAK8Tag = JetDepot(process,
+            JetTag=gecAK8Tag,
             jecUncDir=0,
             doSmear=doJERsmearing,
             jerUncDir=0,
@@ -102,17 +109,20 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     # get puppi-specific multiplicities
     from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
     process.puppiSpecificAK8Clean = patPuppiJetSpecificProducer.clone(
-        src = JetAK8CleanTag
+        #src = JetAK8CleanTag
+        src = gecAK8Tag
     )
 
     # update userfloats (used for jet ID, including ID for JEC/JER variations)
     from TreeMaker.TreeMaker.addJetInfo import addJetInfo
-    process, JetAK8CleanTag = addJetInfo(process, JetAK8CleanTag,
+    #process, JetAK8CleanTag = addJetInfo(process, JetAK8CleanTag,
+    process, gecAK8Tag = addJetInfo(process, gecAK8Tag,
         ['puppiSpecificAK8Clean:puppiMultiplicity','puppiSpecificAK8Clean:neutralPuppiMultiplicity','puppiSpecificAK8Clean:neutralHadronPuppiMultiplicity',
          'puppiSpecificAK8Clean:photonPuppiMultiplicity','puppiSpecificAK8Clean:HFHadronPuppiMultiplicity','puppiSpecificAK8Clean:HFEMPuppiMultiplicity'])
 
     process = self.makeJetVarsAK8(process,
-        JetTag=JetAK8CleanTag,
+        #JetTag=JetAK8CleanTag,
+        JetTag=gecAK8Tag,
         suff='AK8Clean',
         storeProperties=1,
         doECFs=False, # currently disabled
