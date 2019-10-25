@@ -367,9 +367,9 @@ def makeJetVarsAK8(self, process, JetTag, suff, storeProperties, SkipTag=cms.VIn
             properties = cms.vstring(
                 #"prunedMass"            ,
                 "softDropMass"          ,
-                #"NsubjettinessTau1"     ,
-                #"NsubjettinessTau2"     ,
-                #"NsubjettinessTau3"     ,
+                "NsubjettinessTau1"     ,
+                "NsubjettinessTau2"     ,
+                "NsubjettinessTau3"     ,
                 "bDiscriminatorCSV"     ,
                 "NumBhadrons"           ,
                 "NumChadrons"           ,
@@ -380,19 +380,19 @@ def makeJetVarsAK8(self, process, JetTag, suff, storeProperties, SkipTag=cms.VIn
         # specify userfloats
         #JetPropertiesAK8.prunedMass = cms.vstring('ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass')
         JetPropertiesAK8.softDropMass = cms.vstring('SoftDropPuppi') # computed from subjets
-        #JetPropertiesAK8.NsubjettinessTau1 = cms.vstring('NjettinessAK8Puppi:tau1')
-        #JetPropertiesAK8.NsubjettinessTau2 = cms.vstring('NjettinessAK8Puppi:tau2')
-        #JetPropertiesAK8.NsubjettinessTau3 = cms.vstring('NjettinessAK8Puppi:tau3')
-        JetPropertiesAK8.bDiscriminatorCSV = cms.vstring('pfBoostedDoubleSecondaryVertexAK8BJetTags')
+	JetPropertiesAK8.NsubjettinessTau1 = cms.vstring('NjettinessAK8Puppi:tau1')
+	JetPropertiesAK8.NsubjettinessTau2 = cms.vstring('NjettinessAK8Puppi:tau2')
+	JetPropertiesAK8.NsubjettinessTau3 = cms.vstring('NjettinessAK8Puppi:tau3')
+	JetPropertiesAK8.bDiscriminatorCSV = cms.vstring('pfBoostedDoubleSecondaryVertexAK8BJetTags')
         JetPropertiesAK8.subjets = cms.vstring('SoftDropPuppi')
         JetPropertiesAK8.SJbDiscriminatorCSV = cms.vstring('SoftDropPuppi','pfCombinedInclusiveSecondaryVertexV2BJetTags')
         self.VectorDouble.extend([
-            'JetProperties'+suff+':prunedMass(Jets'+suff+'_prunedMass)',
+            #'JetProperties'+suff+':prunedMass(Jets'+suff+'_prunedMass)',
             'JetProperties'+suff+':softDropMass(Jets'+suff+'_softDropMass)',
             'JetProperties'+suff+':bDiscriminatorCSV(Jets'+suff+'_doubleBDiscriminator)',
-            #'JetProperties'+suff+':NsubjettinessTau1(Jets'+suff+'_NsubjettinessTau1)',
-            #'JetProperties'+suff+':NsubjettinessTau2(Jets'+suff+'_NsubjettinessTau2)',
-            #'JetProperties'+suff+':NsubjettinessTau3(Jets'+suff+'_NsubjettinessTau3)',
+            'JetProperties'+suff+':NsubjettinessTau1(Jets'+suff+'_NsubjettinessTau1)',
+            'JetProperties'+suff+':NsubjettinessTau2(Jets'+suff+'_NsubjettinessTau2)',
+            'JetProperties'+suff+':NsubjettinessTau3(Jets'+suff+'_NsubjettinessTau3)',
         ])
         self.VectorInt.extend([
             'JetProperties'+suff+':NumBhadrons(Jets'+suff+'_NumBhadrons)',
