@@ -10,7 +10,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     # https://twiki.cern.ch/CMS/JetToolbox
     from JMEAnalysis.JetToolbox.jetToolbox_cff import jetToolbox
     listBTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos','pfImpactParameterTagInfos']
-    listBtagDiscriminatorsAK8 = ['pfBoostedDoubleSecondaryVertexAK8BJetTags']
+    listBtagDiscriminatorsAK8 = ['pfBoostedDoubleSecondaryVertexAK8BJetTags','pfMassIndependentDeepDoubleBvLJetTags:probHbb']
     JETCorrLevels = ['L2Relative', 'L3Absolute', 'L2L3Residual']
     reclusterJetPostFix='CleanedWithZ'
     jetToolbox(process, 'ak8', 'dummySeqAK8', 'noOutput',

@@ -452,10 +452,13 @@ def makeJetVarsAK8(self, process, JetTag, suff, storeProperties, SkipTag=cms.VIn
 
         if self.deepDoubleB and doDeepDoubleB:
             JetPropertiesAK8.properties.extend([
+                #"deepDoubleCvBDiscriminatorH",
                 "deepDoubleBDiscriminatorH",
                 "deepDoubleBDiscriminatorQ",
             ])
-            JetPropertiesAK8.deepDoubleBDiscriminatorH = cms.vstring('pfDeepDoubleBJetTags:probH')
+            #JetPropertiesAK8.deepDoubleBDiscriminatorH = cms.vstring('pfDeepDoubleBJetTags:probH')
+            #JetPropertiesAK8.deepDoubleCvBDiscriminatorH = cms.vstring('pfMassIndependentDeepDoubleCvBJetTags:probHbb')
+            JetPropertiesAK8.deepDoubleBDiscriminatorH = cms.vstring('pfMassIndependentDeepDoubleBvLJetTags:probHbb')
             JetPropertiesAK8.deepDoubleBDiscriminatorQ = cms.vstring('pfDeepDoubleBJetTags:probQ')
             self.VectorDouble.extend([
                 'JetProperties'+suff+':deepDoubleBDiscriminatorH(Jets'+suff+'_deepDoubleBDiscriminatorH)',
