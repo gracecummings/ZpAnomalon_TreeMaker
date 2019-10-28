@@ -90,6 +90,12 @@ Fall17samples = [
 	MCSample('DYJetsToLL_M-50_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8', 'PU2017_12Apr2018_94X_mc2017_realistic_v14-v1', 'RunIIFall17MiniAODv2', 'Constant', 404986, True, 387646),
 	MCSample('DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8', 'PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14-v1', 'RunIIFall17MiniAODv2', 'Constant', 97800939, True, 97714787), # subtotal = 48632630, straight subtotal = 48675378
 	MCSample('DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8', 'PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14_ext1-v1', 'RunIIFall17MiniAODv2', 'Constant', 97800939, True, 97714787), # subtotal = 49082157, straight subtotal = 49125561
+
+        #############
+        MCSample('DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8', 'PU2017_12Apr2018_94X_mc2017_realistic_v14-v1', 'RunIIFall17MiniAODv2', 'Constant', 209773027, True), # subtotal = 27413121
+        MCSample('DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8', 'PU2017_12Apr2018_94X_mc2017_realistic_v14_ext1-v1', 'RunIIFall17MiniAODv2', 'Constant', 209773027, True), # subtotal = 182359906
+        ############
+
 	MCSample('ZJetsToNuNu_HT-100To200_13TeV-madgraph', 'PU2017_12Apr2018_94X_mc2017_realistic_v14-v1', 'RunIIFall17MiniAODv2', 'Constant', 22737266, True, 22702468),
 	MCSample('ZJetsToNuNu_HT-200To400_13TeV-madgraph', 'PU2017_12Apr2018_94X_mc2017_realistic_v14-v1', 'RunIIFall17MiniAODv2', 'Constant', 21675916, True, 21618510),
 	MCSample('ZJetsToNuNu_HT-400To600_13TeV-madgraph', 'PU2017_12Apr2018_94X_mc2017_realistic_v14-v1', 'RunIIFall17MiniAODv2', 'Constant', 9134120, True, 9094890),
