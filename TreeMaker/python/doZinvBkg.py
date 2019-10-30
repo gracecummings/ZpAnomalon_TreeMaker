@@ -12,12 +12,12 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     listBTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos','pfImpactParameterTagInfos']
     listBtagDiscriminatorsAK8 = ['pfBoostedDoubleSecondaryVertexAK8BJetTags']
     JETCorrLevels = ['L2Relative', 'L3Absolute', 'L2L3Residual']
-    reclusterJetPostFix='CleanedWithZ'
+    reclusterAK8JetPostFix='CleanedWithZ'
     jetToolbox(process, 'ak8', 'dummySeqAK8', 'noOutput',
                PUMethod='Puppi', JETCorrPayload='AK8PFPuppi', JETCorrLevels=JETCorrLevels,
                Cut='pt > 170.0 && abs(rapidity()) < 2.4',
                miniAOD=True, runOnMC=runOnMC,
-               postFix=reclusterJetPostFix,
+               postFix=reclusterAK8JetPostFix,
                newPFCollection = True,
                nameNewPFCollection = cleanedCandidates.value(),
                addSoftDrop=True, addSoftDropSubjets=True, 
@@ -33,7 +33,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
     updateJetCollection(
         process,
-        jetSource=cms.InputTag('packedPatJetsAK8PFPuppi'+reclusterJetPostFix+'SoftDrop'),
+        jetSource=cms.InputTag('packedPatJetsAK8PFPuppi'+reclusterAK8JetPostFix+'SoftDrop'),
         pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
         svSource = cms.InputTag('slimmedSecondaryVertices'),
         rParam=0.8,
@@ -45,12 +45,10 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     #end option 2
 
     #back to originial treemaker
-    JetAK8CleanTag=cms.InputTag("selectedUpdatedPatJetsAK8"+reclusterJetPostFix+"WithPuppiDaughters")
+    JetAK8CleanTag=cms.InputTag("selectedUpdatedPatJetsAK8"+reclusterAK8JetPostFix+"WithPuppiDaughters")
 
     if doJERsmearing:
         # do central smearing and replace jet tag
-        #process, _, JetAK8CleanTag = JetDepot(process,
-        #    JetTag=JetAK8CleanTag,
         process, _, JetAK8CleanTag = JetDepot(process,
             JetTag=JetAK8CleanTag,
             jecUncDir=0,
@@ -62,20 +60,17 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     # get puppi-specific multiplicities
     from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
     process.puppiSpecificAK8Clean = patPuppiJetSpecificProducer.clone(
-        #src = JetAK8CleanTag
         src = JetAK8CleanTag
     )
 
     # update userfloats (used for jet ID, including ID for JEC/JER variations)
     from TreeMaker.TreeMaker.addJetInfo import addJetInfo
-    #process, JetAK8CleanTag = addJetInfo(process, JetAK8CleanTag,
     process, JetAK8CleanTag = addJetInfo(process, JetAK8CleanTag,
         ['puppiSpecificAK8Clean:puppiMultiplicity','puppiSpecificAK8Clean:neutralPuppiMultiplicity','puppiSpecificAK8Clean:neutralHadronPuppiMultiplicity',
          'puppiSpecificAK8Clean:photonPuppiMultiplicity','puppiSpecificAK8Clean:HFHadronPuppiMultiplicity','puppiSpecificAK8Clean:HFEMPuppiMultiplicity'])
 
     process = self.makeJetVarsAK8(process,
         JetTag=JetAK8CleanTag,
-        #JetTag=gecAK8Tag,
         suff='AK8Clean',
         storeProperties=1,
         doECFs=False, # currently disabled
@@ -88,9 +83,9 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     # update some userfloat names
     process.JetPropertiesAK8Clean.softDropMass = cms.vstring('SoftDrop')
     process.JetPropertiesAK8Clean.subjets = cms.vstring('SoftDrop')
-    process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8Puppi'+reclusterJetPostFix+':tau1')
-    process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8Puppi'+reclusterJetPostFix+':tau2')
-    process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8Puppi'+reclusterJetPostFix+':tau3')
+    process.JetPropertiesAK8Clean.NsubjettinessTau1 = cms.vstring('NjettinessAK8Puppi'+reclusterAK8JetPostFix+':tau1')
+    process.JetPropertiesAK8Clean.NsubjettinessTau2 = cms.vstring('NjettinessAK8Puppi'+reclusterAK8JetPostFix+':tau2')
+    process.JetPropertiesAK8Clean.NsubjettinessTau3 = cms.vstring('NjettinessAK8Puppi'+reclusterAK8JetPostFix+':tau3')
     process.JetPropertiesAK8Clean.SJbDiscriminatorCSV = cms.vstring('SoftDrop','pfCombinedInclusiveSecondaryVertexV2BJetTags')
     process.JetPropertiesAK8Clean.neutralHadronPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralHadronPuppiMultiplicity")
     process.JetPropertiesAK8Clean.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralPuppiMultiplicity")
@@ -249,13 +244,13 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     print "||||||| making event variables |||||||"
     # make the event variables
     # commenting out stuff that is breakinf
-    #process = self.makeJetVars(
-    #    process,
-    #    JetTag = JetTagClean,
-    #    suff=postfix,
-    #    storeProperties=1,
-    #    METfix=self.doMETfix,
-    #)
+    process = self.makeJetVars(
+        process,
+        JetTag = JetTagClean,
+        suff=postfix,
+        storeProperties=1,
+        METfix=self.doMETfix,
+    )
     print "||||||| more MET stuff, ugh |||||||"
     from TreeMaker.Utils.metdouble_cfi import metdouble
     METclean = metdouble.clone(
