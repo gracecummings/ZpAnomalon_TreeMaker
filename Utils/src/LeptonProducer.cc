@@ -35,6 +35,8 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+// math tools in CMSSW
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TVector2.h"
 
@@ -51,6 +53,10 @@ public:
         
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   float MTWCalculator(double metPt,double  metPhi,double  lepPt,double  lepPhi) const;
+  //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_Identification
+  bool MuonIDhighPt(const pat::Muon & muon, const reco::Vertex& vtx) const;
+  bool MuonIDtrackerHighPt(const pat::Muon & muon, const reco::Vertex& vtx) const;
+
   bool MuonIDloose(const pat::Muon & muon, const reco::Vertex& vtx) const;
   bool MuonIDmedium(const pat::Muon & muon, const reco::Vertex& vtx) const;
   bool MuonIDtight(const pat::Muon & muon, const reco::Vertex& vtx) const;
@@ -81,7 +87,7 @@ private:
   int tightMuNumberOfValidMuonHitsMin_, tightMuNumberOfMatchedStationsMin_;
   double tightMudBMax_, tightMudZMax_;
   int tightMuNumberOfValidPixelHitsMin_, tightMuTrackerLayersWithMeasurementMin_;
-  bool useMiniIsolation_;
+  bool useMiniIsolation_, usePFIsoDeltaBetaCorr_, useTrackerBasedIso_;
   std::vector<double> electronEAValues_, muonEAValues_;
   SUSYIsolation SUSYIsolationHelper;
 };
@@ -141,6 +147,8 @@ LeptonProducer::LeptonProducer(const edm::ParameterSet& iConfig):
   tightMuNumberOfValidPixelHitsMin_      (iConfig.getParameter<int>("tightMuNumberOfValidPixelHitsMin")),
   tightMuTrackerLayersWithMeasurementMin_(iConfig.getParameter<int>("tightMuTrackerLayersWithMeasurementMin")),
   useMiniIsolation_                      (iConfig.getParameter<bool>("UseMiniIsolation")),
+  usePFIsoDeltaBetaCorr_                 (iConfig.getParameter<bool>("UsePFIsoDeltaBetaCorr")),
+  useTrackerBasedIso_                    (iConfig.getParameter<bool>("UseTrackerBasedIso")),
   electronEAValues_                      (iConfig.getParameter<std::vector<double>>("electronEAValues")),
   muonEAValues_                          (iConfig.getParameter<std::vector<double>>("muonEAValues"))
 {
@@ -199,9 +207,9 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
 
   auto isoElectrons = std::make_unique<std::vector<pat::Electron>>();
   auto idElectrons = std::make_unique<std::vector<pat::Electron>>();
-  auto isoMuons = std::make_unique<std::vector<pat::Muon>>();
   auto idMuons = std::make_unique<std::vector<pat::Muon>>();
-  
+  auto idisoMuons = std::make_unique<std::vector<pat::Muon>>();  
+
   auto MuonCharge = std::make_unique<std::vector<int>>();
   auto ElectronCharge = std::make_unique<std::vector<int>>();
 
@@ -244,10 +252,45 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
         {
           if(aMu.pt()<minMuPt_ || fabs(aMu.eta())>maxMuEta_) continue;
 
+          //highPt or trackerHighPt ID
+          if( MuonIDhighPt(aMu,vtx_h->at(0)) || MuonIDtrackerHighPt(aMu,vtx_h->at(0)) ) 
+            {
+              idMuons->push_back(aMu);
+
+              if(usePFIsoDeltaBetaCorr_)
+                {
+                  //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation 
+                  double pfiso = aMu.pfIsolationR04().sumChargedHadronPt
+                                 + std::max(0.0, aMu.pfIsolationR04().sumNeutralHadronEt
+                                                 + aMu.pfIsolationR04().sumPhotonEt
+                                                 - 0.5*aMu.pfIsolationR04().sumPUPt);
+                  double relpfiso = pfiso/aMu.pt(); 
+                  if(relpfiso < reco::Muon::PFIsoLoose) idisoMuons->push_back(aMu);
+              }
+              //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Tracker_based_Isolation
+              else if(useTrackerBasedIso_)
+                  {
+                    double trackerIso = aMu.isolationR03().sumPt; 
+                    //subtrack other muons' inner track pts from the cone
+                    for(const auto & bMu : *muonHandle)
+                       {
+                        if (!MuonIDhighPt(bMu,vtx_h->at(0)) && !MuonIDtrackerHighPt(bMu,vtx_h->at(0))) continue;
+                        if (&bMu != &aMu && reco::deltaR(bMu,aMu)<0.3)
+                            trackerIso-=bMu.innerTrack()->pt();        
+                    } 
+                    double reltrackeriso = trackerIso/aMu.pt();
+                    if(reltrackeriso < reco::Muon::TkIsoLoose) idisoMuons->push_back(aMu);
+              }
+              else{ //no iso for the moment
+                   idisoMuons->push_back(aMu);
+              }
+
+          }//highPt or trackerHighPt ID
+
+          /*
           //if(MuonIDloose(aMu,vtx_h->at(0)))//orginial line, changing to compare until I fix the NMuons part 
 	  if(MuonIDtight(aMu,vtx_h->at(0)))
             {
-              idMuons->push_back(aMu);
               muIDMedium->push_back(MuonIDmedium(aMu,vtx_h->at(0)));
               muIDTight->push_back(MuonIDtight(aMu,vtx_h->at(0)));
               //muIDMTW->push_back(MTWCalculator(metLorentz.pt(),metLorentz.phi(),aMu.pt(),aMu.phi()));
@@ -268,9 +311,12 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
               //    isoMuons->push_back(aMu);
               //  }
             }
-        }
-    }
-    else edm::LogWarning("TreeMaker")<<"LeptonProducer::MuonTag Invalid Tag: "<<MuonTag_;
+          */
+
+        }//const auto & aMu : *muonHandle
+
+  }//muonHandle.isValid()
+  else edm::LogWarning("TreeMaker")<<"LeptonProducer::MuonTag Invalid Tag: "<<MuonTag_;
 
 
   edm::Handle<edm::View<pat::Electron> > eleHandle;
@@ -315,7 +361,7 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   iEvent.put(std::move(htp2),"IdIsoMuonNum");
   iEvent.put(std::move(htp3),"IdIsoElectronNum");
   iEvent.put(std::move(idMuons),"IdMuon");
-  iEvent.put(std::move(isoMuons),"IdIsoMuon");
+  iEvent.put(std::move(idisoMuons),"IdIsoMuon");
 
   iEvent.put(std::move(idElectrons),"IdElectron");
   iEvent.put(std::move(isoElectrons),"IdIsoElectron");
@@ -384,6 +430,34 @@ bool LeptonProducer::MuonIDtight(const pat::Muon & muon, const reco::Vertex& vtx
                  muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > tightMuTrackerLayersWithMeasurementMin_;
 
   return isTight;
+}
+
+//https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_Identification
+bool LeptonProducer::MuonIDhighPt(const pat::Muon & muon, const reco::Vertex& vtx) const {
+     bool isHighPt = muon.isGlobalMuon() &&
+                     muon.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 &&
+                     muon.numberOfMatchedStations() > 1 &&
+                     muon.tunePMuonBestTrack()->ptError()/muon.tunePMuonBestTrack()->pt() < 0.3 &&
+                     fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 &&
+                     fabs(muon.innerTrack()->dz(vtx.position())) < 0.5 &&
+                     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
+                     muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
+
+  return isHighPt;
+}
+
+//https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_Identification
+bool LeptonProducer::MuonIDtrackerHighPt(const pat::Muon & muon, const reco::Vertex& vtx) const {
+     bool isTrackerHighPt = muon.isTrackerMuon() &&
+                            muon.track().isNonnull() &&
+                            muon.numberOfMatchedStations() > 1 &&
+                            muon.tunePMuonBestTrack()->ptError()/muon.tunePMuonBestTrack()->pt() < 0.3 &&
+                            fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2 &&
+                            fabs(muon.innerTrack()->dz(vtx.position())) < 0.5 &&
+                            muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
+                            muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
+
+  return isTrackerHighPt;
 }
 
 bool LeptonProducer::ElectronID(const pat::Electron & electron, const reco::Vertex & vtx, const elecIDLevel level, const double rho) const {
