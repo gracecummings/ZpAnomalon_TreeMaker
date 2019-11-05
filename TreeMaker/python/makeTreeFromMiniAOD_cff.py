@@ -435,13 +435,22 @@ def makeTreeFromMiniAOD(self,process):
     TMeras.TM2017.toModify(elePostRecoEra, value = "2017-Nov17ReReco")
     TMeras.TM80X.toModify(elePostRecoEra, value = "2016-Legacy")
     if len(elePostRecoEra.value.value())>0:
-        process = setupEgammaPostRecoSeq(process, runVID=False, era=elePostRecoEra.value.value())
+        if elePostRecoEra.value.value()=="2016-Legacy" :
+           process = setupEgammaPostRecoSeq(process, runVID=False, runEnergyCorrections=False, era=elePostRecoEra.value.value())
+        else :
+           process = setupEgammaPostRecoSeq(process, runVID=False, era=elePostRecoEra.value.value())
+
+    # will introduce muon momentum calibration later
+    process.cleanedBySegmentsMuons = cms.EDProducer("PATMuonCleanerBySegments",
+            src = cms.InputTag("slimmedMuons"),
+            preselection = cms.string("track.isNonnull"),
+            passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
+            fractionOfSharedSegments = cms.double(0.499)
+    )
     from TreeMaker.Utils.leptonproducer_cfi import leptonproducer
     process.LeptonsNew = leptonproducer.clone(
-        elecIsoValue       = cms.double(0.1), # only has an effect when used with miniIsolation
-        UseMiniIsolation   = cms.bool(True),
-        METTag             = METTag  ,
-        rhoCollection      = cms.InputTag("fixedGridRhoFastjetCentralNeutral")  
+            MuonTag = cms.InputTag('cleanedBySegmentsMuons'),
+            METTag  = METTag,
     )
     # from: https://indico.cern.ch/event/732971/contributions/3022843/attachments/1658685/2656462/eleIdTuning.pdf
     (TMeras.TM2017 | TMeras.TM2018).toModify(process.LeptonsNew,
