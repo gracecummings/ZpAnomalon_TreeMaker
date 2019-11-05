@@ -435,10 +435,10 @@ def makeTreeFromMiniAOD(self,process):
     TMeras.TM2017.toModify(elePostRecoEra, value = "2017-Nov17ReReco")
     TMeras.TM80X.toModify(elePostRecoEra, value = "2016-Legacy")
     if len(elePostRecoEra.value.value())>0:
-        if elePostRecoEra.value.value()=="2016-Legacy" :
-           process = setupEgammaPostRecoSeq(process, runVID=False, runEnergyCorrections=False, era=elePostRecoEra.value.value())
+        if elePostRecoEra.value.value()=="2017-Nov17ReReco" :
+           process = setupEgammaPostRecoSeq(process, runVID=False, runEnergyCorrections=True, era=elePostRecoEra.value.value())
         else :
-           process = setupEgammaPostRecoSeq(process, runVID=False, era=elePostRecoEra.value.value())
+           process = setupEgammaPostRecoSeq(process, runVID=False, runEnergyCorrections=False, era=elePostRecoEra.value.value())
 
     # will introduce muon momentum calibration later
     process.cleanedBySegmentsMuons = cms.EDProducer("PATMuonCleanerBySegments",

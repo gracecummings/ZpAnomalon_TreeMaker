@@ -281,7 +281,35 @@ def doZinvBkg(self,process):
     process.goodPhotons = PhotonIDisoProducer.clone(
         conversionCollection   = cms.untracked.InputTag("reducedEgamma","reducedConversions",self.tagname)
     )
+    TMeras.TM2017.toModify(process.goodPhotons,
+        # calibrated photon collection
+        photonCollection       = cms.untracked.InputTag("slimmedPhotons","",process.name_()),
+        # use existing electron collection
+        electronCollection     = cms.untracked.InputTag("slimmedElectrons","","@skipCurrentProcess"),
+    )
+    # Fall17V2 Loose photon ID
+    # https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Working_points_for_94X_and_later
+    (TMeras.TM2017 | TMeras.TM2018).toModify(process.goodPhotons,
+        effArEtaLow            = cms.vdouble(0.,     1.000,  1.479,  2.0,    2.2,    2.3,     2.4), #lower boundaries of |eta| in effective area(EA) calculation
+        effArEtaHigh           = cms.vdouble(1.,     1.479,  2.000,  2.2,    2.3,    2.4,     99.), #upper boundaries of |eta| in effective area(EA) calculation
+        effArChHad             = cms.vdouble(0.0112, 0.0108, 0.0106, 0.01002,0.0098, 0.0089,  0.0087),#EA for charged hadrons in diiferent |eta| ranges
+        effArNuHad             = cms.vdouble(0.0668, 0.1054, 0.0786, 0.0233, 0.0078, 0.0028,  0.0137),#EA for neutral hadrons in diiferent |eta| ranges
+        effArGamma             = cms.vdouble(0.1113, 0.0953, 0.0619, 0.0837, 0.1070, 0.1212,  0.1466),#EA for photons(gamma) in diiferent |eta| ranges
+        hadTowOverEm_EB_cut    = cms.double(0.04596), #H/E cut in EB
+        hadTowOverEm_EE_cut    = cms.double(0.0590), #H/E cut in EE
+        sieie_EB_cut           = cms.double(0.0106), #Sigma ieta_ieta cut in EB
+        sieie_EE_cut           = cms.double(0.0272), #Sigma ieta_ieta cut in EE
+        pfChIsoRhoCorr_EB_cut  = cms.double(1.694), #Pho corrected PF charged ISO in EB
+        pfChIsoRhoCorr_EE_cut  = cms.double(2.089), #Pho corrected PF charged ISO in EE
+        pfNuIsoRhoCorr_EB_cut  = cms.vdouble(24.032, 0.01512, 0.00002259), #Rho corrected PF neutral ISO = [0]+[1]*pt+[2]*pt^2
+        pfNuIsoRhoCorr_EE_cut  = cms.vdouble(19.722, 0.0117,  0.000023), #Rho corrected PF neutral ISO = [0]+[1]*pt+[2]*pt^2
+        pfGmIsoRhoCorr_EB_cut  = cms.vdouble(2.876, 0.004017), #Rho corrected gamma ISO = [0]+[1]*pt
+        pfGmIsoRhoCorr_EE_cut  = cms.vdouble(4.162, 0.0037), #Rho corrected gamma ISO = [0]+[1]*pt
+    )
+
+    #https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Working_points_for_2016_data_for
     TMeras.TM2016.toModify(process.goodPhotons,
+        # Egamma on-the-fly calibration off, thus no new electron/phton collections generated 
         effArChHad             = cms.vdouble(0.0360, 0.0377, 0.0306, 0.0283, 0.0254, 0.0217, 0.0167),#EA for charged hadrons in diiferent |eta| ranges
         effArNuHad             = cms.vdouble(0.0597, 0.0807, 0.0629, 0.0197, 0.0184, 0.0284, 0.0591),#EA for neutral hadrons in diiferent |eta| ranges
         effArGamma             = cms.vdouble(0.1210, 0.1107, 0.0699, 0.1056, 0.1457, 0.1719, 0.1988),#EA for photons(gamma) in diiferent |eta| ranges
