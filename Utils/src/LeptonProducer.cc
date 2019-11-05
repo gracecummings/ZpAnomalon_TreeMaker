@@ -310,6 +310,14 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
     {
       for(const auto & aEle : *eleHandle)
         {
+          if(fabs(aEle.superCluster()->eta())>maxElecEta_) continue;
+          if(aEle.hasUserFloat("ecalTrkEnergyPostCorr")){
+             auto corrP4  = aEle.p4() * aEle.userFloat("ecalTrkEnergyPostCorr") / aEle.energy();
+             std::cout<<"Ele pT before corr "<<aEle.pt()<<std::endl;
+             aEle.setP4(corrP4);
+          }
+          std::cout<<"Ele pT after corr "<<aEle.pt()<<std::endl;
+
           if(fabs(aEle.superCluster()->eta())>maxElecEta_ || aEle.pt()<minElecPt_) continue;
           const reco::Vertex vtx = vtx_h->at(0);
 
@@ -322,6 +330,7 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
             {
               // id passed
               idElectrons->push_back(aEle);
+
               elecIDMTW->push_back(MTWCalculator(metLorentz.pt(),metLorentz.phi(),aEle.pt(),aEle.phi()));
               elecIDMedium->push_back(ElectronID(aEle, vtx, MEDIUM, rho));
               elecIDTight->push_back(ElectronID(aEle, vtx, TIGHT, rho));
@@ -329,6 +338,7 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
               elecIDEnergyCorr->push_back(aEle.hasUserFloat("ecalEnergyPostCorr") ? aEle.userFloat("ecalEnergyPostCorr") : -1);
               elecIDTrkEnergyCorr->push_back(aEle.hasUserFloat("ecalTrkEnergyPostCorr") ? aEle.userFloat("ecalTrkEnergyPostCorr") : -1);
               elecIDPassIso->push_back(useMiniIsolation_ ? miniIso<elecIsoValue_ : true);
+
               if(elecIDPassIso->back())
                 {
                   // iso passed
@@ -338,9 +348,11 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
             }
 
           //if use MVA ID
-          if(aEle.electronID(eleMVAIdWP_) && useEleMVAId_){
+          if(useEleMVAId_){
+              if(!aEle.electronID(eleMVAIdWP_)) continue;
               // id passed
               idElectrons->push_back(aEle);
+
               elecIDMTW->push_back(MTWCalculator(metLorentz.pt(),metLorentz.phi(),aEle.pt(),aEle.phi()));
               elecIDMedium->push_back(ElectronID(aEle, vtx, MEDIUM, rho));
               elecIDTight->push_back(ElectronID(aEle, vtx, TIGHT, rho));
