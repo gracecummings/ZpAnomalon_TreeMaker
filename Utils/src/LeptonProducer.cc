@@ -77,9 +77,9 @@ private:
   double minElecPt_, maxElecEta_, elecIsoValue_;
   bool useEleMVAId_, useMiniIsolation_;
   std::string eleMVAIdWP_;
-  std::vector<double> eb_ieta_cut_, eb_deta_cut_, eb_dphi_cut_, eb_hovere_cut_, eb_hovere_cut2_, eb_hovere_cut3_, eb_ooeminusoop_cut_, eb_d0_cut_, eb_dz_cut_, eb_relIsoWithEA_cut_, eb_relIsoWithEA_cut2_, eb_relIsoWithEA_cut3_;
+  std::vector<double> eb_ieta_cut_, eb_deta_cut_, eb_dphi_cut_, eb_hovere_cut_, eb_hovere_cut2_, eb_hovere_cut3_, eb_ooeminusoop_cut_, eb_d0_cut_, eb_dz_cut_, eb_relIsoWithEA_cut_, eb_relIsoWithEA_cut2_;
   std::vector<int> eb_misshits_cut_;
-  std::vector<double> ee_ieta_cut_, ee_deta_cut_, ee_dphi_cut_, ee_hovere_cut_, ee_hovere_cut2_, ee_hovere_cut3_, ee_ooeminusoop_cut_, ee_d0_cut_, ee_dz_cut_, ee_relIsoWithEA_cut_, ee_relIsoWithEA_cut2_, ee_relIsoWithEA_cut3_;
+  std::vector<double> ee_ieta_cut_, ee_deta_cut_, ee_dphi_cut_, ee_hovere_cut_, ee_hovere_cut2_, ee_hovere_cut3_, ee_ooeminusoop_cut_, ee_d0_cut_, ee_dz_cut_, ee_relIsoWithEA_cut_, ee_relIsoWithEA_cut2_;
   std::vector<int> ee_misshits_cut_;
   bool hovere_constant_, relIsoWithEA_constant_;
   double minMuPt_, maxMuEta_, muIsoValue_;
@@ -170,9 +170,7 @@ LeptonProducer::LeptonProducer(const edm::ParameterSet& iConfig):
 
   if(!relIsoWithEA_constant_){
     eb_relIsoWithEA_cut2_ = iConfig.getParameter<std::vector<double>>("eb_relIsoWithEA_cut2");
-    eb_relIsoWithEA_cut3_ = iConfig.getParameter<std::vector<double>>("eb_relIsoWithEA_cut3");
     ee_relIsoWithEA_cut2_ = iConfig.getParameter<std::vector<double>>("ee_relIsoWithEA_cut2");
-    ee_relIsoWithEA_cut3_ = iConfig.getParameter<std::vector<double>>("ee_relIsoWithEA_cut3");
   }
 
   SUSYIsolationHelper.SetEAVectors(electronEAValues_, muonEAValues_);
@@ -500,7 +498,7 @@ bool LeptonProducer::ElectronID(const pat::Electron & electron, const reco::Vert
 
   if (electron.isEB()) {
     hovere_pass = (hovere_constant_) ? eb_hovere_cut_[level] > hoe : eb_hovere_cut_[level] + (eb_hovere_cut2_[level]/electron.energy()) + (eb_hovere_cut3_[level]*rho/electron.energy()) > hoe;
-    relIsoWithEA_pass = (relIsoWithEA_constant_) ? eb_relIsoWithEA_cut_[level] > relIsoWithEA : eb_relIsoWithEA_cut_[level] + (eb_relIsoWithEA_cut2_[level]/electron.energy()) + (eb_relIsoWithEA_cut3_[level]*rho/electron.energy()) > relIsoWithEA;
+    relIsoWithEA_pass = (relIsoWithEA_constant_) ? eb_relIsoWithEA_cut_[level] > relIsoWithEA : eb_relIsoWithEA_cut_[level] + (eb_relIsoWithEA_cut2_[level]/electron.pt()) > relIsoWithEA;
     return eb_deta_cut_[level] > fabs(dEtaIn)
       && eb_dphi_cut_[level] > fabs(dPhiIn)
       && eb_ieta_cut_[level] > sieie
@@ -513,7 +511,7 @@ bool LeptonProducer::ElectronID(const pat::Electron & electron, const reco::Vert
       && (eb_misshits_cut_[level] >= mhits);
   } else if (electron.isEE()) {
     hovere_pass = (hovere_constant_) ? ee_hovere_cut_[level] > hoe : ee_hovere_cut_[level] + (ee_hovere_cut2_[level]/electron.energy()) + (ee_hovere_cut3_[level]*rho/electron.energy()) > hoe;
-    relIsoWithEA_pass = (relIsoWithEA_constant_) ? ee_relIsoWithEA_cut_[level] > relIsoWithEA : ee_relIsoWithEA_cut_[level] + (ee_relIsoWithEA_cut2_[level]/electron.energy()) + (ee_relIsoWithEA_cut3_[level]*rho/electron.energy()) > relIsoWithEA;
+    relIsoWithEA_pass = (relIsoWithEA_constant_) ? ee_relIsoWithEA_cut_[level] > relIsoWithEA : ee_relIsoWithEA_cut_[level] + (ee_relIsoWithEA_cut2_[level]/electron.pt()) > relIsoWithEA;
     return ee_deta_cut_[level] > fabs(dEtaIn)
       && ee_dphi_cut_[level] > fabs(dPhiIn)
       && ee_ieta_cut_[level] > sieie

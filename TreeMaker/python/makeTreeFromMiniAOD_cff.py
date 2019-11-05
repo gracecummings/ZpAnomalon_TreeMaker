@@ -345,6 +345,7 @@ def makeTreeFromMiniAOD(self,process):
             reapplyJEC=False,
             fixEE2017=self.doMETfix,
         )
+        # use "current process"  slimmedMETs
         METTag = cms.InputTag('slimmedMETs','',process.name_())
 
         # additional run to keep orig values
@@ -454,6 +455,8 @@ def makeTreeFromMiniAOD(self,process):
         eb_ooeminusoop_cut = cms.vdouble(0.209,   0.193,   0.184,   0.159),
         eb_d0_cut          = cms.vdouble(0.05,    0.05,    0.05,    0.05),
         eb_dz_cut          = cms.vdouble(0.10,    0.10,    0.10,    0.10),
+        eb_relIsoWithEA_cut  = cms.vdouble(0.198,    0.112,    0.0478,   0.0287),
+        eb_relIsoWithEA_cut2 = cms.vdouble(0.506,    0.506,    0.506,    0.506),
         eb_misshits_cut    = cms.vint32 (2,       1,       1,       1),
         # endcap electrons
         ee_ieta_cut        = cms.vdouble(0.0457,  0.0425,  0.0387,  0.0353),
@@ -465,9 +468,12 @@ def makeTreeFromMiniAOD(self,process):
         ee_ooeminusoop_cut = cms.vdouble(0.132,   0.111,   0.0721,  0.0197),
         ee_d0_cut          = cms.vdouble(0.10,    0.10,    0.10,    0.10),
         ee_dz_cut          = cms.vdouble(0.20,    0.20,    0.20,    0.20),
+        ee_relIsoWithEA_cut  = cms.vdouble(0.203,    0.108,    0.0658,   0.0445),
+        ee_relIsoWithEA_cut2 = cms.vdouble(0.963,    0.963,    0.963,    0.963),
         ee_misshits_cut    = cms.vint32 (3,       1,       1,       1),
         # common electrons
-        hovere_constant    = cms.bool(False),
+        hovere_constant       = cms.bool(False),
+        relIsoWithEA_constant = cms.bool(False),
         # from: https://github.com/cms-sw/cmssw/blob/1fbada01f097fbd446e7a431140f83bc9f5a0ff0/RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt
         electronEAValues   = cms.vdouble(0.1440, 0.1562, 0.1032, 0.0859, 0.1116, 0.1321, 0.1654),
     )

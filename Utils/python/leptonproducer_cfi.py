@@ -19,7 +19,7 @@ leptonproducer = cms.EDProducer('LeptonProducer',
     eb_ooeminusoop_cut                     = cms.vdouble(0.299,   0.241,   0.134,   0.0129),
     eb_d0_cut                              = cms.vdouble(0.05,    0.05,    0.05,    0.05),
     eb_dz_cut                              = cms.vdouble(0.10,    0.10,    0.10,    0.10),
-    eb_relIsoWithEA_cut                    = cms.vdouble(0.356,   0.298,   0.253,   0.0414),
+    eb_relIsoWithEA_cut                    = cms.vdouble(0.198,   0.112,   0.0478,  0.0287),
     eb_misshits_cut                        = cms.vint32 (2,       1,       1,       1),
     # endcap electrons
     ee_ieta_cut                            = cms.vdouble(0.037,   0.0314,  0.0298,  0.0292),
