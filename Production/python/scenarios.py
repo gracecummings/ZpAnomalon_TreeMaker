@@ -91,7 +91,7 @@ class Scenario:
             )
         elif sname == "Fall17":
             self.set_vars(
-                globaltag="94X_mc2017_realistic_v13",
+                globaltag="94X_mc2017_realistic_v17",
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
