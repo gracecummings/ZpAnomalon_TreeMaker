@@ -375,11 +375,6 @@ def doZinvBkg(self,process):
         first = cms.InputTag("selectedZleptons"), second = cms.InputTag("goodPhotons","highpt")
     )
     
-    process.xonSkim = cms.EDFilter("CandViewCountFilter",
-                                src = cms.InputTag("selectedXons"),
-                                minNumber = cms.uint32(1)
-    )
-
     # do the removal
     # if putEmpty is set to true, this will output an empty collection if the "veto" collection is empty
     # this avoids pointless reclustering of an identical candidate collection
