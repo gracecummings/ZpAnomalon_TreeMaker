@@ -67,7 +67,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 	       mu1 = *(iL1->clone());
 	       mu2 = muon;
 	       aZ.setP4(mu1.p4()+muon.p4());
-	       if ((aZ.mass() <=110) && (aZ.mass()) >= 70 && aZ.pt() > 100){
+	       if ((aZ.mass() <=110) && (aZ.mass()) >= 70){
 		  aZlist.push_back(aZ);
 		  leadMuons.push_back(mu1);
 		  subMuons.push_back(mu2);
@@ -120,7 +120,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
                e1 = *(iL1->clone());
                e2 = electron;
                aZ.setP4(e1.p4()+e2.p4());
-               if ( aZ.mass() <= 110 && aZ.mass() >= 70 && aZ.pt() > 100){
+               if ( aZ.mass() <= 110 && aZ.mass() >= 70){
                   aZlist.push_back(aZ);
                   leadElectrons.push_back(e1);
                   subElectrons.push_back(e2);
