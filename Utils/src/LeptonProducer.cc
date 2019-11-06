@@ -261,8 +261,9 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   iEvent.getByToken(MuonTok_, muonHandle);
   if(muonHandle.isValid())
     {
-      for(const auto & aMu : *muonHandle)
+      for(const auto & muon : *muonHandle)
         {
+          pat::Muon aMu = muon;
           if(aMu.pt()<minMuPt_ || fabs(aMu.eta())>maxMuEta_) continue;
 
           //highPt or trackerHighPt ID
@@ -287,7 +288,7 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
                        {
                         if (!MuonIDhighPt(bMu,vtx_h->at(0)) && !MuonIDtrackerHighPt(bMu,vtx_h->at(0))) continue;
                         if (&bMu != &aMu && reco::deltaR(bMu,aMu)<0.3)
-                            trackerIso-=bMu.innerTrack()->pt();        
+                            trackerIso -= bMu.innerTrack()->pt();        
                     } 
                     if(trackerIso/aMu.pt() < 0.1 /*reco::Muon::TkIsoLoose*/) idisoMuons->push_back(aMu);
               }
@@ -308,8 +309,9 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   iEvent.getByToken(ElecTok_, eleHandle);
   if(eleHandle.isValid())
     {
-      for(const auto & aEle : *eleHandle)
+      for(const auto & ele : *eleHandle)
         {
+          pat::Electron aEle = ele;
           if(fabs(aEle.superCluster()->eta())>maxElecEta_) continue;
           if(aEle.hasUserFloat("ecalTrkEnergyPostCorr")){
              auto corrP4  = aEle.p4() * aEle.userFloat("ecalTrkEnergyPostCorr") / aEle.energy();

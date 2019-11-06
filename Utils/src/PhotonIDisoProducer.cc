@@ -220,7 +220,9 @@ PhotonIDisoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
 
   /// setup cluster tools
   noZS::EcalClusterLazyTools clusterTools_(iEvent, iSetup, ecalRecHitsInputTag_EB_Token_, ecalRecHitsInputTag_EE_Token_);
-  for(const auto& iPhoton : *photonCands){
+  for(const auto& photon : *photonCands){
+
+    pat::Photon iPhoton = photon;
 
     if( debug ) {
       edm::LogInfo("TreeMaker")
