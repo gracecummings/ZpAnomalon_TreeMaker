@@ -303,10 +303,8 @@ PhotonIDisoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
     // correct photon pt
     if(iPhoton.hasUserFloat("ecalEnergyPostCorr")){
        auto corrP4  = iPhoton.p4() * iPhoton.userFloat("ecalEnergyPostCorr") / iPhoton.energy();
-       std::cout<<"Pho pT before corr "<<iPhoton.pt()<<std::endl;
        iPhoton.setP4(corrP4);
     }
-    std::cout<<"Pho pT after corr "<<iPhoton.pt()<<std::endl;
 
     // check if photon is a good loose photon
     if( passAcc && passIDLoose && passIsoLoose && iPhoton.pt() > pt_cut_){//pure photons

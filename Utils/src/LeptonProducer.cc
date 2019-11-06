@@ -264,16 +264,25 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       for(const auto & muon : *muonHandle)
         {
           pat::Muon aMu = muon;
+          // will have some muon momentum correction before the pT cut
           if(aMu.pt()<minMuPt_ || fabs(aMu.eta())>maxMuEta_) continue;
 
-          //highPt or trackerHighPt ID
-          if( MuonIDhighPt(aMu,vtx_h->at(0)) || MuonIDtrackerHighPt(aMu,vtx_h->at(0)) ) 
-            {
+          if(MuonIDtight(aMu,vtx_h->at(0))){
               idMuons->push_back(aMu);
+              muIDMedium->push_back(MuonIDmedium(aMu,vtx_h->at(0)));
+              muIDTight->push_back(MuonIDtight(aMu,vtx_h->at(0)));
+              muIDMTW->push_back(MTWCalculator(metLorentz.pt(),metLorentz.phi(),aMu.pt(),aMu.phi()));
+              MuonCharge->push_back(aMu.charge());
+              nmuons++;
+          }
 
+          //highPt or trackerHighPt ID
+          //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#HighPt_Muon
+          //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#HighPt_Tracker_Muon
+          if( muon::isHighPtMuon(aMu,vtx_h->at(0)) || muon::isTrackerHighPtMuon(aMu,vtx_h->at(0)) ) 
+            {
               //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Particle_Flow_isolation
-              if(usePFIsoDeltaBetaCorr_)
-                {
+              if(usePFIsoDeltaBetaCorr_){
                   double pfiso = aMu.pfIsolationR03().sumChargedHadronPt +
                                  std::max(0.0, aMu.pfIsolationR03().sumNeutralHadronEt + aMu.pfIsolationR03().sumPhotonEt - 0.5*aMu.pfIsolationR03().sumPUPt);
                   double relpfiso = pfiso/aMu.pt(); 
@@ -315,10 +324,8 @@ void LeptonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
           if(fabs(aEle.superCluster()->eta())>maxElecEta_) continue;
           if(aEle.hasUserFloat("ecalTrkEnergyPostCorr")){
              auto corrP4  = aEle.p4() * aEle.userFloat("ecalTrkEnergyPostCorr") / aEle.energy();
-             std::cout<<"Ele pT before corr "<<aEle.pt()<<std::endl;
              aEle.setP4(corrP4);
           }
-          std::cout<<"Ele pT after corr "<<aEle.pt()<<std::endl;
 
           if(fabs(aEle.superCluster()->eta())>maxElecEta_ || aEle.pt()<minElecPt_) continue;
           const reco::Vertex vtx = vtx_h->at(0);
