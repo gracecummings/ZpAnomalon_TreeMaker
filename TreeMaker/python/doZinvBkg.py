@@ -357,6 +357,7 @@ def doZinvBkg(self,process):
     )
     self.VectorRecoCand.append("makeTheZs:ZCandidates")
     self.VectorRecoCand.append("makeTheZs:SelectedMuons")
+    self.VectorRecoCand.append("makeTheZs:SelectedElectrons")
 
     ###
     # do the new cleaning
@@ -364,16 +365,21 @@ def doZinvBkg(self,process):
 
     # combine leptons
     # GEC - might be able to do both electronca and muons here in hte future
-    process.selectedLeptons = cms.EDProducer("CandViewMerger",
+    process.selectedZleptons = cms.EDProducer("CandViewMerger",
         #src = cms.VInputTag("LeptonsNew:IdIsoElectron","LeptonsNew:IdMuon")
-        src = cms.VInputTag("makeTheZs:SelectedMuons")
+        src = cms.VInputTag("makeTheZs:SelectedMuons","makeTheZs:SelectedElectrons")
     )
         # if there are no leptons in the event, just remove high-pt photons (GJet)
     # otherwise, just remove leptons (DY)
     process.selectedXons = cms.EDProducer("CandPtrPrefer",
-        first = cms.InputTag("selectedLeptons"), second = cms.InputTag("goodPhotons","highpt")
+        first = cms.InputTag("selectedZleptons"), second = cms.InputTag("goodPhotons","highpt")
     )
     
+    process.xonSkim = cms.EDFilter("CandViewCountFilter",
+                                src = cms.InputTag("selectedXons"),
+                                minNumber = cms.uint32(1)
+    )
+
     # do the removal
     # if putEmpty is set to true, this will output an empty collection if the "veto" collection is empty
     # this avoids pointless reclustering of an identical candidate collection
