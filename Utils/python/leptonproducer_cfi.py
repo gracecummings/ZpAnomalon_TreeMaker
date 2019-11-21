@@ -4,9 +4,13 @@ leptonproducer = cms.EDProducer('LeptonProducer',
     MuonTag                                = cms.InputTag('slimmedMuons'),
     ElectronTag                            = cms.InputTag('slimmedElectrons'),
     PrimaryVertex                          = cms.InputTag('offlineSlimmedPrimaryVertices'),
-    minElecPt                              = cms.double(10),
+    METTag                                 = cms.InputTag('slimmedMETs'),
+    minElecPt                              = cms.double(35),
     maxElecEta                             = cms.double(2.5),
     elecIsoValue                           = cms.double(0.2), # only has an effect with useMiniIsolation
+    UseEleMVAId                            = cms.bool(False),
+    UseMiniIsolation                       = cms.bool(False),
+    eleMVAIdWP                             = cms.string("mvaEleID-Fall17-iso-V2-wpHZZ"),
     # barrel electrons
     eb_ieta_cut                            = cms.vdouble(0.0115,  0.011,   0.00998, 0.00998),
     eb_deta_cut                            = cms.vdouble(0.00749, 0.00477, 0.00311, 0.00308),
@@ -15,6 +19,7 @@ leptonproducer = cms.EDProducer('LeptonProducer',
     eb_ooeminusoop_cut                     = cms.vdouble(0.299,   0.241,   0.134,   0.0129),
     eb_d0_cut                              = cms.vdouble(0.05,    0.05,    0.05,    0.05),
     eb_dz_cut                              = cms.vdouble(0.10,    0.10,    0.10,    0.10),
+    eb_relIsoWithEA_cut                    = cms.vdouble(0.198,   0.112,   0.0478,  0.0287),
     eb_misshits_cut                        = cms.vint32 (2,       1,       1,       1),
     # endcap electrons
     ee_ieta_cut                            = cms.vdouble(0.037,   0.0314,  0.0298,  0.0292),
@@ -24,15 +29,17 @@ leptonproducer = cms.EDProducer('LeptonProducer',
     ee_ooeminusoop_cut                     = cms.vdouble(0.15,    0.14,    0.13,    0.0129),
     ee_d0_cut                              = cms.vdouble(0.10,    0.10,    0.10,    0.10),
     ee_dz_cut                              = cms.vdouble(0.20,    0.20,    0.20,    0.20),
+    ee_relIsoWithEA_cut                    = cms.vdouble(0.356,   0.298,   0.253,   0.0414),
     ee_misshits_cut                        = cms.vint32 (3,       1,       1,       1),
     # common electrons
     hovere_constant                        = cms.bool(True),
-    electronEAValues                       = cms.vdouble(0.1752, 0.1862, 0.1411, 0.1534, 0.1903, 0.2243, 0.2687),
+    relIsoWithEA_constant                  = cms.bool(True),
     #muons
     minMuPt                                = cms.double(20),#gec cut
     maxMuEta                               = cms.double(2.4),
     muIsoValue                             = cms.double(0.2), #loose (<0.40), medium (<0.20), tight (<0.10), very tight (<0.05)
-    muonEAValues                           = cms.vdouble(0.0735, 0.0619, 0.0465, 0.0433, 0.0577),
+    UsePFIsoDeltaBetaCorr                  = cms.bool(False),
+    UseTrackerBasedIso                     = cms.bool(True),
     muNormalizedChi2Max                    = cms.double(3.0),
     muChi2LocalPositionMax                 = cms.double(12.0),
     muTrkKink                              = cms.double(20.0),
@@ -47,7 +54,6 @@ leptonproducer = cms.EDProducer('LeptonProducer',
     tightMudZMax                           = cms.double(0.5),
     tightMuNumberOfValidPixelHitsMin       = cms.int32(0),
     tightMuTrackerLayersWithMeasurementMin = cms.int32(5),
-    UseMiniIsolation                       = cms.bool(False),
-    METTag                                 = cms.InputTag('slimmedMETs'), 
-    rhoCollection                          = cms.InputTag("fixedGridRhoFastjetAll")
+    electronEAValues                       = cms.vdouble(0.1752, 0.1862, 0.1411, 0.1534, 0.1903, 0.2243, 0.2687),
+    muonEAValues                           = cms.vdouble(0.0735, 0.0619, 0.0465, 0.0433, 0.0577)
 )
