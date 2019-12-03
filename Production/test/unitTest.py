@@ -42,6 +42,7 @@ if test==-1: name = ""
 
 # list of tests
 mytests = []
+mytests.append(makeTest("2017ReReco31Mar","Run2017C-31Mar2018-v1.SinglePhoton",numevents,command,inputFilesConfig="Run2017C-31Mar2018-v1.SinglePhoton",nstart=0,nfiles=1))
 # activate these when the requisite MC exists
 mytests.append(makeTest("Summer16v3","Summer16v3.GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",numevents,command,inputFilesConfig="Summer16v3.GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",nstart=0,nfiles=1))
 mytests.append(makeTest("Summer16v3","Summer16v3.TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",numevents,command,inputFilesConfig="Summer16v3.TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",nstart=0,nfiles=1))
