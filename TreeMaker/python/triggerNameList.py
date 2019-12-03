@@ -154,9 +154,9 @@ triggerNameList = cms.vstring(
     # Single Photon control region triggers#
     ########################################
     'HLT_Photon50_R9Id90_HE10_IsoM_v',
-    'HLT_Photon75_R9Id90_HE10_IsoM_v'
-    'HLT_Photon90_R9Id90_HE10_IsoM_v'
-    'HLT_Photon120_R9Id90_HE10_IsoM_v'
+    'HLT_Photon75_R9Id90_HE10_IsoM_v',
+    'HLT_Photon90_R9Id90_HE10_IsoM_v',
+    'HLT_Photon120_R9Id90_HE10_IsoM_v',
     'HLT_Photon165_R9Id90_HE10_IsoM_v',
     ########################################
     'HLT_Photon175_v',
