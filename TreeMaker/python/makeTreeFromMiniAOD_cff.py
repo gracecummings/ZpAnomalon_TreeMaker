@@ -662,14 +662,34 @@ def makeTreeFromMiniAOD(self,process):
     self.VectorString.extend(['TriggerProducer:TriggerNames'])
     if "SingleElectron" in process.source.fileNames[0] or "EGamma" in process.source.fileNames[0]:
         process.TriggerProducer.saveHLTObj = cms.bool(True)
-        process.TriggerProducer.saveHLTObjPath = cms.string("HLT_Ele27_WPTight_Gsf_v")
+        process.TriggerProducer.saveHLTObjPaths = cms.vstring('HLT_Ele27_WPTight_Gsf_v')
         process.TriggerProducer.saveHLTObjName = cms.string("HLTElectronObjects")
         self.VectorTLorentzVector.extend(['TriggerProducer:HLTElectronObjects'])
     elif "SingleMuon" in process.source.fileNames[0]:
         process.TriggerProducer.saveHLTObj = cms.bool(True)
-        process.TriggerProducer.saveHLTObjPath = cms.string("HLT_Mu50_v")
+        process.TriggerProducer.saveHLTObjPaths = cms.vstring('HLT_Mu50_v')
         process.TriggerProducer.saveHLTObjName = cms.string("HLTMuonObjects")
         self.VectorTLorentzVector.extend(['TriggerProducer:HLTMuonObjects'])
+    # single photon
+    elif "SinglePhoton" in process.source.fileNames[0]:
+        SinglePhotonPaths = cms.vstring('HLT_Photon50_R9Id90_HE10_IsoM_v',
+                                        'HLT_Photon75_R9Id90_HE10_IsoM_v',
+                                        'HLT_Photon90_R9Id90_HE10_IsoM_v',
+                                        'HLT_Photon120_R9Id90_HE10_IsoM_v',
+                                        'HLT_Photon165_R9Id90_HE10_IsoM_v')
+        process.hltHighLevelSinglePhoton = cms.EDFilter("HLTHighLevel",
+                TriggerResultsTag = cms.InputTag("TriggerResults","",self.hlttagname),
+                HLTPaths = SinglePhotonPaths,           # provide list of HLT paths (or patterns) you want
+                eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+                andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+                throw = cms.bool(True)    # throw exception on unknown path names
+
+        )
+        process.TriggerProducer.saveHLTObj = cms.bool(True)
+        process.TriggerProducer.saveHLTObjPaths = SinglePhotonPaths
+        saveHLTObjName = 'TriggerObjectsSinglePhoton'
+        process.TriggerProducer.saveHLTObjName = cms.string(saveHLTObjName)
+        self.VectorTLorentzVector.extend(['TriggerProducer:'+saveHLTObjName])
 
     if not self.geninfo:
         from TreeMaker.Utils.prescaleweightproducer_cfi import prescaleweightProducer
@@ -678,7 +698,6 @@ def makeTreeFromMiniAOD(self,process):
         self.VarsDouble.extend(['PrescaleWeightProducer:weight(PrescaleWeightHT)'])
         self.VarsDouble.extend(['PrescaleWeightProducer:ht(HTOnline)'])
         self.VarsDouble.extend(['PrescaleWeightProducer:mht(MHTOnline)'])
-
     
     ## ----------------------------------------------------------------------------------------------
     ## JER smearing, various uncertainties

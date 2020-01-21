@@ -9,6 +9,7 @@ prescaleTagArg2  = cms.string(''),
 prescaleTagArg3  = cms.string(''),
 VertexCollection  = cms.InputTag('offlineSlimmedPrimaryVertices'),
 saveHLTObj = cms.bool(False),
+saveHLTObjPaths = cms.vstring(),
 trigObj = cms.InputTag('slimmedPatTrigger'),
 triggerNameList    =   cms.vstring()
 )

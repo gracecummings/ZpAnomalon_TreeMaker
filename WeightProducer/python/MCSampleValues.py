@@ -442,6 +442,9 @@ class MCSampleValuesHelper():
         "WZTo1L3Nu" : {
             "CrossSection" : XSValues(XS_13TeV=3.058),
         },
+        "WZTo2L2Q" : {
+            "CrossSection" : XSValues(XS_13TeV=5.606),
+        },
         "ZGTo2NuG" : {
             "CrossSection" : XSValues(XS_13TeV=32.3),
         },
