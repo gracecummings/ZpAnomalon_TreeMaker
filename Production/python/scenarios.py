@@ -91,7 +91,8 @@ class Scenario:
             )
         elif sname == "Fall17":
             self.set_vars(
-                globaltag="94X_mc2017_realistic_v17",
+                #globaltag="94X_mc2017_realistic_v17",
+                globaltag="102X_mc2017_realistic_v7",
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
@@ -148,7 +149,8 @@ class Scenario:
             )
         elif sname == "2017ReReco31Mar":
             self.set_vars(
-                globaltag="94X_dataRun2_v11",
+                #globaltag="94X_dataRun2_v17",#does not work in this release
+                globaltag ="102X_dataRun2_v12",
                 tagname="PAT",
                 hlttagname="HLT",
                 jsonfile="data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt",
@@ -256,7 +258,8 @@ class Scenario:
             )
         elif sname == "Hirosky2017_SigSamples":
             self.set_vars(
-                globaltag="94X_mc2017_realistic_v3",
+                #globaltag="94X_mc2017_realistic_v3",
+                globaltag="102X_mc2017_realistic_v7",
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
