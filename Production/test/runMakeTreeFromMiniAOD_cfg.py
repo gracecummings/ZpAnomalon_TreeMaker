@@ -93,3 +93,7 @@ if debugjets:
 if dump:
     print process.dumpPython()
     sys.exit(0)
+
+#JEC debugging
+#print process
+#print dir(process)

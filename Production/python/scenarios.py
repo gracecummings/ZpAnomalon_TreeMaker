@@ -273,7 +273,8 @@ class Scenario:
             )
         elif sname == "Hirosky2017_Bkg":
             self.set_vars(
-                globaltag="94X_mc2017_realistic_v14-v1",
+                globaltag="102X_mc2017_realistic_v7",
+                #globaltag="94X_mc2017_realistic_v14-v1",
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,

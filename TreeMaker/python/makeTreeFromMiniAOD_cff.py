@@ -133,10 +133,10 @@ def makeTreeFromMiniAOD(self,process):
     ## GenParticles
     ## ----------------------------------------------------------------------------------------------
     if self.geninfo:
-        if self.saveMinimalGenParticles:
-            process.genParticles = cms.EDProducer("GenParticlesProducer",
-                genCollection = cms.InputTag("prunedGenParticles"),
-                debug = cms.bool(False),
+        #if self.saveMinimalGenParticles:
+        #    process.genParticles = cms.EDProducer("GenParticlesProducer",
+        #        genCollection = cms.InputTag("prunedGenParticles"),
+        #        debug = cms.bool(False),
                 #original
                 # Particles we want to save from the decay chain of the tops
                 #childIds = cms.vint32(1,2,3,4,5,11,12,13,14,15,16,24),
@@ -149,19 +149,19 @@ def makeTreeFromMiniAOD(self,process):
                 #    4900021,4900023,4900101,4900102,4900111,4900113,4900211,4900213,51,52,53,
                 #    5000001,5000002,
                 #),
-                #Particles we want to keep from the decays of the ND anomalons
-                childIds = cms.vint32(23,25,13,5,9936663),
-                #Other interesting particles
-                parentIds = cms.vint32(9906663,9936662),
-                # Other settings
-                keepIds = cms.vint32(),
-                keepFirst = cms.bool(False),
-                keepMinimal = cms.bool(True),
-            )
-        else:
-            process.genParticles = cms.EDProducer("GenParticlesProducer",
-                genCollection = cms.InputTag("prunedGenParticles"),
-                debug = cms.bool(False),
+        #        #Particles we want to keep from the decays of the ND anomalons
+        #        childIds = cms.vint32(23,25,13,5,9936663),
+        #        #Other interesting particles
+        #        parentIds = cms.vint32(9906663,9936662),
+        #        # Other settings
+        #        keepIds = cms.vint32(5,13,23,25),
+        #        keepFirst = cms.bool(False),
+        #        keepMinimal = cms.bool(True),
+        #    )
+        #else:
+        process.genParticles = cms.EDProducer("GenParticlesProducer",
+                                              genCollection = cms.InputTag("prunedGenParticles"),
+                                              debug = cms.bool(False),
                 #childIds = cms.vint32(1,2,3,4,5,11,12,13,14,15,16,22),
                 #parentIds = cms.vint32(
                 #    1,2,6,23,24,25,
@@ -173,12 +173,12 @@ def makeTreeFromMiniAOD(self,process):
                 #),
                 childIds = cms.vint32(23,25,13,5,9936663),
                 parentIds = cms.vint32(9906663,9936662),
-                keepIds = cms.vint32(6,23,24,25),
+                keepIds = cms.vint32(5,13,23,25),
                 keepFirst = cms.bool(True),
                 keepMinimal = cms.bool(False),
             )
             # store gluons for signals with Higgs
-            if "T5qqqqZH" in process.source.fileNames[0]: process.genParticles.childIds.append(21)
+        #if "T5qqqqZH" in process.source.fileNames[0]: process.genParticles.childIds.append(21)
         self.VectorTLorentzVector.append("genParticles(GenParticles)")
         self.VectorInt.append("genParticles:PdgId(GenParticles_PdgId)")
         self.VectorInt.append("genParticles:Status(GenParticles_Status)")
@@ -224,6 +224,9 @@ def makeTreeFromMiniAOD(self,process):
 
     process.load("CondCore.DBCommon.CondDBCommon_cfi")
     from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+
+    #process.load("CondCore.CondDB.CondDB_cfi")
+    #from CondCore.CondDB.CondDB_cfi import CondDBSetup
     
     # get the JECs (disabled by default)
     # this requires the user to download the .db file from this twiki
@@ -251,6 +254,7 @@ def makeTreeFromMiniAOD(self,process):
         process.es_prefer_jec = cms.ESPrefer("PoolDBESSource","jec")
         
         levels  = ['L1FastJet','L2Relative','L3Absolute']
+        #levels  = ['L1FastJet','L2Relative']
         if self.residual: levels.append('L2L3Residual')
         
         from TreeMaker.TreeMaker.TMEras import TMeras
@@ -1082,13 +1086,13 @@ def makeTreeFromMiniAOD(self,process):
     ## ----------------------------------------------------------------------------------------------
     ## Hadronic Tau Background
     ## ----------------------------------------------------------------------------------------------
-    if self.hadtau:
-        dorecluster = False
-        if self.hadtaurecluster==0: dorecluster = False
-        elif self.hadtaurecluster==1: dorecluster = ("TTJets" in process.source.fileNames[0] or "WJets" in process.source.fileNames[0])
-        elif self.hadtaurecluster==2: dorecluster = geninfo
-        elif self.hadtaurecluster==3: dorecluster = True
-        process = self.doHadTauBkg(process,JetTagBeforeSmearing,dorecluster)
+    #if self.hadtau:
+    #    dorecluster = False
+    #    if self.hadtaurecluster==0: dorecluster = False
+    #    elif self.hadtaurecluster==1: dorecluster = ("TTJets" in process.source.fileNames[0] or "WJets" in process.source.fileNames[0])
+    #    elif self.hadtaurecluster==2: dorecluster = geninfo
+    #    elif self.hadtaurecluster==3: dorecluster = True
+    #    process = self.doHadTauBkg(process,JetTagBeforeSmearing,dorecluster)
 
     ## ----------------------------------------------------------------------------------------------
     ## Lost Lepton Background
@@ -1106,27 +1110,27 @@ def makeTreeFromMiniAOD(self,process):
     ## ----------------------------------------------------------------------------------------------
     ## Semi-visible jets
     ## ----------------------------------------------------------------------------------------------
-    if self.semivisible:
-        process.HiddenSector = cms.EDProducer("HiddenSectorProducer",
-            JetTag = JetAK8Tag,
-            MetTag = METTag,
-            GenTag = cms.InputTag("prunedGenParticles"),
-            DarkIDs = cms.vuint32(51,52,53),
-            DarkQuarkID = cms.uint32(4900101),
-            DarkMediatorID = cms.uint32(4900023),
-        )
-        self.VarsDouble.extend([
-            'HiddenSector:MJJ(MJJ_AK8)',
-            'HiddenSector:Mmc(Mmc_AK8)',
-            'HiddenSector:MT(MT_AK8)',
-            'HiddenSector:DeltaPhi1(DeltaPhi1_AK8)',
-            'HiddenSector:DeltaPhi2(DeltaPhi2_AK8)',
-            'HiddenSector:DeltaPhiMin(DeltaPhiMin_AK8)',
-        ])
-        if self.geninfo:
-            self.VectorBool.extend([
-                'HiddenSector:isHV(JetsAK8_isHV)'
-            ])
+    #if self.semivisible:
+    #    process.HiddenSector = cms.EDProducer("HiddenSectorProducer",
+    #        JetTag = JetAK8Tag,
+    #        MetTag = METTag,
+    #        GenTag = cms.InputTag("prunedGenParticles"),
+    #        DarkIDs = cms.vuint32(51,52,53),
+    #        DarkQuarkID = cms.uint32(4900101),
+    #        DarkMediatorID = cms.uint32(4900023),
+    #    )
+    #    self.VarsDouble.extend([
+    #        'HiddenSector:MJJ(MJJ_AK8)',
+    #        'HiddenSector:Mmc(Mmc_AK8)',
+    #        'HiddenSector:MT(MT_AK8)',
+    #        'HiddenSector:DeltaPhi1(DeltaPhi1_AK8)',
+    #        'HiddenSector:DeltaPhi2(DeltaPhi2_AK8)',
+    #        'HiddenSector:DeltaPhiMin(DeltaPhiMin_AK8)',
+    #    ])
+    #    if self.geninfo:
+    #        self.VectorBool.extend([
+    #            'HiddenSector:isHV(JetsAK8_isHV)'
+    #        ])
 
     ## ----------------------------------------------------------------------------------------------
     ## ----------------------------------------------------------------------------------------------

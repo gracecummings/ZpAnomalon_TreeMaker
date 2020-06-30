@@ -12,6 +12,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     listBTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos','pfImpactParameterTagInfos']
     listBtagDiscriminatorsAK8 = ['pfBoostedDoubleSecondaryVertexAK8BJetTags','pfMassIndependentDeepDoubleBvLJetTags:probHbb']
     JETCorrLevels = ['L2Relative', 'L3Absolute', 'L2L3Residual']
+    #JETCorrLevels = ['L2Relative', 'L2L3Residual']
     reclusterAK8JetPostFix='CleanedWithZ'
     jetToolbox(process, 'ak8', 'dummySeqAK8', 'noOutput',
                PUMethod='Puppi', JETCorrPayload='AK8PFPuppi', JETCorrLevels=JETCorrLevels,
@@ -23,8 +24,8 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
                addSoftDrop=True, addSoftDropSubjets=True, 
                addNsub=True, maxTau=3,
                bTagInfos = listBTagInfos, bTagDiscriminators = listBtagDiscriminatorsAK8,
-               subJETCorrPayload='AK4PFPuppi', subJETCorrLevels=JETCorrLevels,   # must add soft-drop
-               verbosity = 2 if self.verbose else 0
+               subJETCorrPayload='AK4PFPuppi', subJETCorrLevels=JETCorrLevels,
+               verbosity = 0 #if self.verbose else 0
     )
 
     # add deep taggers
@@ -38,6 +39,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         svSource = cms.InputTag('slimmedSecondaryVertices'),
         rParam=0.8,
         jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual']), 'None'),
+        #jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L2L3Residual']), 'None'),
         btagDiscriminators = _pfDeepBoostedJetTagsAll,
         postfix='AK8CleanedWithZWithPuppiDaughters',   # !!! postfix must contain "WithPuppiDaughter" !!!
         printWarning = False
@@ -45,7 +47,9 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     #end option 2
 
     #back to originial treemaker
+    #jecCheckString = "TransientCorrected"
     JetAK8CleanTag=cms.InputTag("selectedUpdatedPatJetsAK8"+reclusterAK8JetPostFix+"WithPuppiDaughters")
+    #JetAK8CleanTag=cms.InputTag("updatedPatJets"+jecCheckString+"AK8"+reclusterAK8JetPostFix+"WithPuppiDaughters")#This one does not have deeptaggers!!
 
     if doJERsmearing:
         # do central smearing and replace jet tag
@@ -72,7 +76,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     process = self.makeJetVarsAK8(process,
         JetTag=JetAK8CleanTag,
         suff='AK8Clean',
-        storeProperties=1,
+        storeProperties=2,
         doECFs=False, # currently disabled
         #doDeepAK8=False, # currently disabled
         doDeepAK8=True, 
@@ -99,7 +103,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         cut = cms.string("fromPV")
     )
     setattr(process,"cleanedCandidatesCHS"+suff,cleanedCandidatesCHS)
-    print "||||||| filtered for cleaned stuff |||||||"
+    #print "||||||| filtered for cleaned stuff |||||||"
     # make the RECO jets 
     from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
     ak4PFJetsClean = ak4PFJets.clone(
@@ -107,13 +111,14 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         doAreaFastjet = True
     )
     setattr(process,"ak4PFJetsClean"+suff,ak4PFJetsClean)
-    print "||||||| clean Ak4 Jets ||||||||"
+    #print "||||||| clean Ak4 Jets ||||||||"
 
     # turn the RECO jets into PAT jets
     # for a full list & description of parameters see:
     # PhysicsTools/PatAlgos/python/tools/jetTools.py
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     jecLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
+    #jecLevels = ['L1FastJet', 'L2Relative']
     if self.residual: jecLevels.append("L2L3Residual")
     btagDiscs = ['pfCombinedInclusiveSecondaryVertexV2BJetTags','pfDeepCSVDiscriminatorsJetTags:BvsAll']
     addJetCollection(
@@ -134,7 +139,6 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
        elSource = cms.InputTag("slimmedElectrons")
     )
 
-    print "||||||| got passed that residual stuff |||||||"
     # turn on/off GEN matching
     getattr(process,'patJetsAK4PFCLEAN'+suff).addGenPartonMatch = cms.bool(False)
     getattr(process,'patJetsAK4PFCLEAN'+suff).addGenJetMatch = cms.bool(False)
@@ -149,8 +153,6 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     )
     setattr(process,'reclusteredJets'+suff,reclusteredJets)
     JetTagClean = cms.InputTag("reclusteredJets"+suff)
-    print "||||||| did a jet cut |||||||"
-
     # recalculate MET from cleaned candidates and reclustered jets
     postfix="clean"+suff
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -181,8 +183,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         METTagOrig = cms.InputTag('slimmedMETs'+postfix+'Orig')
     else:
         METTagOrig = None
-    
-    print "|||||| recalculated MET |||||||"
+
     # isolated tracks
     from TreeMaker.Utils.trackIsolationMaker_cfi import trackIsolationFilter
 
@@ -231,7 +232,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     self.VarsInt.extend(['IsolatedElectronTracksVetoClean'+suff+':isoTracks(isoElectronTracksclean'+suff+')'])
     self.VarsInt.extend(['IsolatedMuonTracksVetoClean'+suff+':isoTracks(isoMuonTracksclean'+suff+')'])
     self.VarsInt.extend(['IsolatedPionTracksVetoClean'+suff+':isoTracks(isoPionTracksclean'+suff+')'])
-    print "||||||| finished isolation stuff, now doing smearing |||||||"
+
     if doJERsmearing:
         # do central smearing and replace jet tag
         process, _, JetTagClean = JetDepot(process,
@@ -241,7 +242,6 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
             jerUncDir=0,
             storeJer=2,
         )
-    print "||||||| making event variables |||||||"
     # make the event variables
     # commenting out stuff that is breakinf
     process = self.makeJetVars(
@@ -251,7 +251,6 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         storeProperties=1,
         METfix=self.doMETfix,
     )
-    print "||||||| more MET stuff, ugh |||||||"
     from TreeMaker.Utils.metdouble_cfi import metdouble
     METclean = metdouble.clone(
        METTag = METTag,
@@ -260,7 +259,6 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     setattr(process,"METclean"+suff,METclean)
     self.VarsDouble.extend(['METclean'+suff+':Pt(METclean'+suff+')','METclean'+suff+':Phi(METPhiclean'+suff+')','METclean'+suff+':Significance(METSignificanceclean'+suff+')'])
 #    self.VarsDouble.extend(['METclean'+suff+':RawPt(RawMETclean'+suff+')','METclean'+suff+':RawPhi(RawMETPhiclean'+suff+')'])
-    print "||||||| probably problematic met ||||||"
     if self.doMETfix:
         METcleanOrig = METclean.clone(
             METTag = METTagOrig
@@ -268,7 +266,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         setattr(process,"METclean"+suff+"Orig",METcleanOrig)
         self.VarsDouble.extend(['METclean'+suff+'Orig:Pt(METclean'+suff+'Orig)','METclean'+suff+'Orig:Phi(METPhiclean'+suff+'Orig)'])
 #        self.VarsDouble.extend(['METclean'+suff+'Orig:RawPt(RawMETclean'+suff+'Orig)','METclean'+suff+'Orig:RawPhi(RawMETPhiclean'+suff+'Orig)'])
-    print "||||||| Finished Reclustering |||||||"
+
 
     return process
 

@@ -67,12 +67,12 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 	       mu1 = *(iL1->clone());
 	       mu2 = muon;
 	       aZ.setP4(mu1.p4()+muon.p4());
-	       if ((aZ.mass() <=110) && (aZ.mass()) >= 70){
+	       //if ((aZ.mass() <=110) && (aZ.mass()) >= 70){
 		  aZlist.push_back(aZ);
 		  leadMuons.push_back(mu1);
 		  subMuons.push_back(mu2);
                   findZ = true;
-               }
+		  //}
 	  }
       }
    }
