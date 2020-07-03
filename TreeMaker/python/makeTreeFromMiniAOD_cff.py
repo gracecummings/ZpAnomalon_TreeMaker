@@ -57,36 +57,36 @@ def makeTreeFromMiniAOD(self,process):
     ## ----------------------------------------------------------------------------------------------
     ## SUSY scan info
     ## ----------------------------------------------------------------------------------------------
-    if self.geninfo:
+    #if self.geninfo:
         # parameters from signal scans (e.g. mother and LSP masses for SUSY SMS)
         # branches always added, but only have values for scan samples
         # needed for WeightProducer
-        from TreeMaker.Utils.signalscan_cfi import SignalScanProducer
-        process.SignalScan = SignalScanProducer.clone(
-            debug = cms.bool(False),
-            isLHE = cms.bool(False)
-        )
-        self.VarsDouble.extend(['SignalScan:SusyMotherMass','SignalScan:SusyLSPMass'])
-        self.VectorDouble.extend(['SignalScan:SignalParameters'])
+    #    from TreeMaker.Utils.signalscan_cfi import SignalScanProducer
+    #    process.SignalScan = SignalScanProducer.clone(
+    #        debug = cms.bool(False),
+    #        isLHE = cms.bool(False)
+    #    )
+    #    self.VarsDouble.extend(['SignalScan:SusyMotherMass','SignalScan:SusyLSPMass'])
+    #    self.VectorDouble.extend(['SignalScan:SignalParameters'])
         # set scan type ("None" by default, producer does nothing)
-        if self.signal:
-            if self.pmssm: process.SignalScan.signalType = "pMSSM"
-            elif self.fastsim: process.SignalScan.signalType = "SUSY"
-            elif "SVJ" in self.sample and "Scan" in self.sample: process.SignalScan.signalType = "SVJ"
+    #    if self.signal:
+    #        if self.pmssm: process.SignalScan.signalType = "pMSSM"
+    #        elif self.fastsim: process.SignalScan.signalType = "SUSY"
+    #        elif "SVJ" in self.sample and "Scan" in self.sample: process.SignalScan.signalType = "SVJ"
         
     ## ----------------------------------------------------------------------------------------------
     ## WeightProducer
     ## ----------------------------------------------------------------------------------------------
-    if self.geninfo:
-        from TreeMaker.WeightProducer.getWeightProducer_cff import getWeightProducer
-        process.WeightProducer = getWeightProducer(process.source.fileNames[0],process.SignalScan.signalType!="None")
-        process.WeightProducer.Lumi                       = cms.double(1) #default: 1 pb-1 (unit value)
-        process.WeightProducer.FileNamePUDataDistribution = cms.string(self.pufile)
-        process.WeightProducer.FileNamePUMCDistribution = cms.string(self.wrongpufile)
-        process.WeightProducer.SampleName = cms.string(self.sample)
-        self.VarsDouble.extend(['WeightProducer:weight(Weight)','WeightProducer:xsec(CrossSection)','WeightProducer:nevents(NumEvents)',
-                           'WeightProducer:TrueNumInteractions','WeightProducer:PUweight(puWeight)','WeightProducer:PUSysUp(puSysUp)','WeightProducer:PUSysDown(puSysDown)'])
-        self.VarsInt.extend(['WeightProducer:NumInteractions'])
+    #if self.geninfo:
+    #    from TreeMaker.WeightProducer.getWeightProducer_cff import getWeightProducer
+    #    process.WeightProducer = getWeightProducer(process.source.fileNames[0],process.SignalScan.signalType!="None")
+     #   process.WeightProducer.Lumi                       = cms.double(1) #default: 1 pb-1 (unit value#)
+   #     process.WeightProducer.FileNamePUDataDistribution = cms.string(self.pufile)
+   #     process.WeightProducer.FileNamePUMCDistribution = cms.string(self.wrongpufile)
+   #     process.WeightProducer.SampleName = cms.string(self.sample)
+   #     self.VarsDouble.extend(['WeightProducer:weight(Weight)','WeightProducer:xsec(CrossSection)','WeightProducer:nevents(NumEvents)',
+   #                        'WeightProducer:TrueNumInteractions','WeightProducer:PUweight(puWeight)','WeightProducer:PUSysUp(puSysUp)','WeightProducer:PUSysDown(puSysDown)'])
+   #     self.VarsInt.extend(['WeightProducer:NumInteractions'])
 
     ## ----------------------------------------------------------------------------------------------
     ## PDF weights for PDF systematics
@@ -215,6 +215,7 @@ def makeTreeFromMiniAOD(self,process):
         cut = cms.string("isPFJet && abs(daughter(0).energy)!=exp(1000)"),
     )
     JetAK8Tag = cms.InputTag('slimmedJetsAK8Good')
+    
     process.slimmedJetsAK8Inf = cms.EDFilter("PATJetSelector",
         src = cms.InputTag("slimmedJetsAK8"),
         cut = cms.string("isPFJet && abs(daughter(0).energy)==exp(1000)"),
@@ -321,6 +322,18 @@ def makeTreeFromMiniAOD(self,process):
 
         # update the corrections for AK8 jets
         # and add any extra discriminators
+
+        #Make DeepAk8 v2 available
+        #from RecoBTag.MXNet.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
+        #from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
+        #from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+        #pfDeepBoostedJetTags.preprocessParams = pfDeepBoostedJetPreprocessParamsV02
+        #pfDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-symbol.json'
+        #pfDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-0000.params'
+        #pfMassDecorrelatedDeepBoostedJetTags.preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+        #pfMassDecorrelatedDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-symbol.json'
+        #pfMassDecorrelatedDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-0000.params'
+            
         updateJetCollection(
             process,
             jetSource = JetAK8Tag,
