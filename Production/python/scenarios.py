@@ -1,4 +1,9 @@
+import os
+
 class Scenario:
+    reldatapath = "TreeMaker/Production/test/data/"
+    absdatapath = os.environ['CMSSW_BASE']+"/src/TreeMaker/Production/test/data/"
+
     def __init__(self,sname):
         if sname == "Summer16":
             self.set_vars(
@@ -6,9 +11,9 @@ class Scenario:
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
-                jecfile="data/jec/Summer16_07Aug2017_V10_MC",
-                jerfile="data/jer/Summer16_25nsV1_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0121_69p2mb_pm4p6.root",
+                jecfile=self.absdatapath+"/jec/Summer16_07Aug2017_V11_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
                 era="Run2_2016",
                 localera="TM2016_80X",
             )
@@ -19,9 +24,9 @@ class Scenario:
                 hlttagname="HLT",
                 geninfo=True,
                 signal=True,
-                jecfile="data/jec/Summer16_07Aug2017_V10_MC",
-                jerfile="data/jer/Summer16_25nsV1_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0121_69p2mb_pm4p6.root",
+                jecfile=self.absdatapath+"/jec/Summer16_07Aug2017_V11_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
                 era="Run2_2016",
                 localera="TM2016_80X",
             )
@@ -31,9 +36,9 @@ class Scenario:
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
-                jecfile="data/jec/Summer16_07Aug2017_V10_MC",
-                jerfile="data/jer/Summer16_25nsV1_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0121_69p2mb_pm4p6.root",
+                jecfile=self.absdatapath+"/jec/Summer16_07Aug2017_V11_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
                 era="Run2_2016",
                 localera="TM2016",
             )
@@ -44,9 +49,23 @@ class Scenario:
                 hlttagname="HLT",
                 geninfo=True,
                 signal=True,
-                jecfile="data/jec/Summer16_07Aug2017_V10_MC",
-                jerfile="data/jer/Summer16_25nsV1_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0121_69p2mb_pm4p6.root",
+                jecfile=self.absdatapath+"/jec/Summer16_07Aug2017_V11_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
+                era="Run2_2016",
+                localera="TM2016",
+            )
+        elif sname == "Summer16v3sigscan":
+            self.set_vars(
+                globaltag="94X_mcRun2_asymptotic_v3",
+                tagname="PAT",
+                hlttagname="HLT",
+                geninfo=True,
+                signal=True,
+                scan=True,
+                jecfile=self.absdatapath+"/jec/Summer16_07Aug2017_V11_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
                 era="Run2_2016",
                 localera="TM2016",
             )
@@ -58,9 +77,9 @@ class Scenario:
                 geninfo=True,
                 fastsim=True,
                 signal=False,
-                jecfile="data/jec/Summer16_25nsFastSimMC_V1",
-                jerfile="data/jer/Summer16_25nsV1_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0121_69p2mb_pm4p6.root",
+                jecfile=self.absdatapath+"/jec/Summer16_FastSimV1_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
                 era="Run2_2016",
                 localera="TM2016",
             )
@@ -72,9 +91,9 @@ class Scenario:
                 geninfo=True,
                 fastsim=True,
                 signal=True,
-                jecfile="data/jec/Summer16_25nsFastSimMC_V1",
-                jerfile="data/jer/Summer16_25nsV1_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0121_69p2mb_pm4p6.root",
+                jecfile=self.absdatapath+"/jec/Summer16_FastSimV1_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
                 era="Run2_2016",
                 localera="TM2016",
             )
@@ -83,8 +102,8 @@ class Scenario:
                 globaltag="94X_dataRun2_v10",
                 tagname="DQM",
                 hlttagname="HLT",
-                jsonfile="data/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
-                jecfile="data/jec/Summer16_07Aug2017All_V11_DATA",
+                jsonfile=self.absdatapath+"/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
+                jecfile=self.absdatapath+"/jec/Summer16_07Aug2017All_V11_DATA",
                 residual=True,
                 era="Run2_2016",
                 localera="TM2016",
@@ -95,10 +114,10 @@ class Scenario:
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
-                jecfile="data/jec/Fall17_17Nov2017_V32_102X_MC",
-                jerfile="data/jer/Fall17_V3_94X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",
-                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                jecfile=self.absdatapath+"/jec/Fall17_17Nov2017_V32_102X_MC",
+                jerfile=self.absdatapath+"/jer/Fall17_V3_94X_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2017_69mb_pm5.root",
+                wrongpufile=self.reldatapath+"/Fall17PU.root",
                 era="Run2_2017",
                 localera="TM2017",
             )
@@ -109,10 +128,25 @@ class Scenario:
                 hlttagname="HLT",
                 geninfo=True,
                 signal=True,
-                jecfile="data/jec/Fall17_17Nov2017_V32_102X_MC",
-                jerfile="data/jer/Fall17_V3_94X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",
-                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                jecfile=self.absdatapath+"/jec/Fall17_17Nov2017_V32_102X_MC",
+                jerfile=self.absdatapath+"/jer/Fall17_V3_94X_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2017_69mb_pm5.root",
+                wrongpufile=self.reldatapath+"/Fall17PU.root",
+                era="Run2_2017",
+                localera="TM2017",
+            )
+        elif sname == "Fall17sigscan":
+            self.set_vars(
+                globaltag="94X_mc2017_realistic_v13",
+                tagname="PAT",
+                hlttagname="HLT",
+                geninfo=True,
+                signal=True,
+                scan=True,
+                jecfile=self.absdatapath+"/jec/Fall17_17Nov2017_V32_102X_MC",
+                jerfile=self.absdatapath+"/jer/Fall17_V3_94X_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2017_69mb_pm5.root",
+                wrongpufile=self.reldatapath+"/Fall17PU.root",
                 era="Run2_2017",
                 localera="TM2017",
             )
@@ -124,10 +158,10 @@ class Scenario:
                 geninfo=True,
                 fastsim=True,
                 signal=False,
-                jecfile="data/jec/Fall17_25nsFastSim_V1_MC",
-                jerfile="data/jer/Fall17_V3_94X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",
-                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                jecfile=self.absdatapath+"/jec/Fall17_25nsFastSim_V1_MC",
+                jerfile=self.absdatapath+"/jer/Fall17_V3_94X_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2017_69mb_pm5.root",
+                wrongpufile=self.reldatapath+"/Fall17PU.root",
                 era="Run2_2017",
                 localera="TM2017",
             )
@@ -139,10 +173,10 @@ class Scenario:
                 geninfo=True,
                 fastsim=True,
                 signal=True,
-                jecfile="data/jec/Fall17_25nsFastSim_V1_MC",
-                jerfile="data/jer/Fall17_V3_94X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",
-                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                jecfile=self.absdatapath+"/jec/Fall17_25nsFastSim_V1_MC",
+                jerfile=self.absdatapath+"/jer/Fall17_V3_94X_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2017_69mb_pm5.root",
+                wrongpufile=self.reldatapath+"/Fall17PU.root",
                 era="Run2_2017",
                 localera="TM2017",
             )
@@ -151,8 +185,8 @@ class Scenario:
                 globaltag="94X_dataRun2_v6",
                 tagname="PAT",
                 hlttagname="HLT",
-                jsonfile="data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt",
-                jecfile="data/jec/Fall17_17Nov2017_V32_102X_DATA",
+                jsonfile=self.absdatapath+"/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt",
+                jecfile=self.absdatapath+"/jec/Fall17_17Nov2017_V32_102X_DATA",
                 residual=True,
                 era="Run2_2017",
                 localera="TM2017",
@@ -163,9 +197,9 @@ class Scenario:
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
-                jecfile="data/jec/Autumn18_V8_MC",
-                jerfile="data/jer/Fall17_V3_102X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0118_63mb_pm5.root",
+                jecfile=self.absdatapath+"/jec/Autumn18_V19_MC",
+                jerfile=self.absdatapath+"/jer/Autumn18_V7b_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2018_69mb_pm5.root",
                 era="Run2_2018",
                 localera="TM2018",
             )
@@ -176,9 +210,23 @@ class Scenario:
                 hlttagname="HLT",
                 geninfo=True,
                 signal=True,
-                jecfile="data/jec/Autumn18_V8_MC",
-                jerfile="data/jer/Fall17_V3_102X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0118_63mb_pm5.root",
+                jecfile=self.absdatapath+"/jec/Autumn18_V19_MC",
+                jerfile=self.absdatapath+"/jer/Autumn18_V7b_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2018_69mb_pm5.root",
+                era="Run2_2018",
+                localera="TM2018",
+            )
+        elif sname == "Autumn18sigscan":
+            self.set_vars(
+                globaltag="102X_upgrade2018_realistic_v16",
+                tagname="PAT",
+                hlttagname="HLT",
+                geninfo=True,
+                signal=True,
+                scan=True,
+                jecfile=self.absdatapath+"/jec/Autumn18_V19_MC",
+                jerfile=self.absdatapath+"/jer/Autumn18_V7b_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2018_69mb_pm5.root",
                 era="Run2_2018",
                 localera="TM2018",
             )
@@ -190,9 +238,9 @@ class Scenario:
                 geninfo=True,
                 fastsim=True,
                 signal=False,
-                jecfile="data/jec/Autumn18_FastSimV1_MC",
-                jerfile="data/jer/Fall17_V3_102X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0118_63mb_pm5.root",
+                jecfile=self.absdatapath+"/jec/Autumn18_FastSimV1_MC",
+                jerfile=self.absdatapath+"/jer/Autumn18_V7b_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2018_69mb_pm5.root",
                 era="Run2_2018",
                 localera="TM2018",
             )
@@ -204,9 +252,9 @@ class Scenario:
                 geninfo=True,
                 fastsim=True,
                 signal=True,
-                jecfile="data/jec/Autumn18_FastSimV1_MC",
-                jerfile="data/jer/Fall17_V3_102X_MC",
-                pufile="TreeMaker/Production/test/data/PileupHistograms_0118_63mb_pm5.root",
+                jecfile=self.absdatapath+"/jec/Autumn18_FastSimV1_MC",
+                jerfile=self.absdatapath+"/jer/Autumn18_V7b_MC",
+                pufile=self.reldatapath+"/PileupHistograms_2018_69mb_pm5.root",
                 era="Run2_2018",
                 localera="TM2018",
             )
@@ -215,8 +263,8 @@ class Scenario:
                 globaltag="102X_dataRun2_PromptLike_v7",
                 tagname="RECO",
                 hlttagname="HLT",
-                jsonfile="data/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt",
-                jecfile="data/jec/Autumn18_RunABCD_V8_DATA",
+                jsonfile=self.absdatapath+"/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt",
+                jecfile=self.absdatapath+"/jec/Autumn18_RunABCD_V19_DATA",
                 residual=True,
                 era="Run2_2018",
                 localera="TM2018",
@@ -226,8 +274,8 @@ class Scenario:
                 globaltag="102X_dataRun2_PromptLike_HEfail_v1",
                 tagname="RECO",
                 hlttagname="HLT",
-                jsonfile="data/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt",
-                jecfile="data/jec/Autumn18_RunABCD_V8_DATA",
+                jsonfile=self.absdatapath+"/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt",
+                jecfile=self.absdatapath+"/jec/Autumn18_RunABCD_V19_DATA",
                 residual=True,
                 era="Run2_2018",
                 localera="TM2018",
@@ -237,8 +285,8 @@ class Scenario:
                 globaltag="102X_dataRun2_Prompt_v11",
                 tagname="RECO",
                 hlttagname="HLT",
-                jsonfile="data/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt",
-                jecfile="data/jec/Autumn18_RunABCD_V8_DATA",
+                jsonfile=self.absdatapath+"/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt",
+                jecfile=self.absdatapath+"/jec/Autumn18_RunABCD_V19_DATA",
                 residual=True,
                 era="Run2_2018",
                 localera="TM2018",
@@ -248,8 +296,8 @@ class Scenario:
                 globaltag="102X_dataRun2_Sep2018Rereco_v1",
                 tagname="RECO",
                 hlttagname="HLT",
-                jsonfile="data/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt",
-                jecfile="data/jec/Autumn18_RunABCD_V8_DATA",
+                jsonfile=self.absdatapath+"/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt",
+                jecfile=self.absdatapath+"/jec/Autumn18_RunABCD_V19_DATA",
                 residual=True,
                 era="Run2_2018",
                 localera="TM2018",
@@ -257,7 +305,7 @@ class Scenario:
         else: # if no recognized scenario, cannot go forward
             raise ValueError('Unknown scenario name: '+sname)
 
-    def set_vars(self, globaltag, era, localera, tagname, hlttagname="", geninfo=False, fastsim=False, signal=False, pmssm=False, jsonfile="", jecfile="", residual=False, jerfile="", pufile="", wrongpufile=""):
+    def set_vars(self, globaltag, era, localera, tagname, hlttagname="", geninfo=False, fastsim=False, signal=False, pmssm=False, scan=False, jsonfile="", jecfile="", residual=False, jerfile="", pufile="", wrongpufile=""):
         self.globaltag  = globaltag
         self.tagname    = tagname
         self.hlttagname = hlttagname
@@ -265,6 +313,7 @@ class Scenario:
         self.fastsim    = fastsim
         self.signal     = signal
         self.pmssm      = pmssm
+        self.scan       = scan
         self.jsonfile   = jsonfile
         self.jecfile    = jecfile
         self.residual   = residual

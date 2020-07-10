@@ -18,6 +18,7 @@
 
 //ROOT headers
 #include "TString.h"
+#include "TBranch.h"
 #include "TTree.h"
 #include <TFile.h>
 #include "TLorentzVector.h"
@@ -30,14 +31,16 @@
 #include <map>
 #include <sstream>
 #include <algorithm>
+#include <utility>
+#include <iterator>
 
 using namespace std;
 
 //enum with known types
 enum TreeTypes { 
-	t_bool=0, t_int=1, t_double=2, t_string=3, t_lorentz=4,
-	t_vbool=100, t_vint=101, t_vdouble=102, t_vstring=103, t_vlorentz=104,
-	t_vvbool=200, t_vvint=201, t_vvdouble=202, t_vvstring=203, t_vvlorentz=204,
+	t_bool=0, t_int=1, t_double=2, t_string=3, t_lorentz=4, t_xyzv=5, t_xyzp=6,
+	t_vbool=100, t_vint=101, t_vdouble=102, t_vstring=103, t_vlorentz=104, t_vxyzv=105, t_vxyzp=106, t_vfloat=107,
+	t_vvbool=200, t_vvint=201, t_vvdouble=202, t_vvstring=203, t_vvlorentz=204, t_vvxyzv=205, t_vvxyzp=206,
 	t_recocand=1000
 };
 
@@ -62,7 +65,7 @@ class TreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 		edm::Service<TFileService> fs;
 		string treeName;
 		TTree* tree;	
-		bool doLorentz, sortBranches;
+		bool doLorentz, sortBranches, debugTitles, nestedVectors;
 		vector<string> VarTypeNames;
 		vector<TreeTypes> VarTypes;
 		map<string,unsigned> nameCache;
@@ -71,6 +74,7 @@ class TreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 		UInt_t lumiBlockNum{};
 		ULong64_t evtNum{};
 		vector<TreeObjectBase*> variables;
+		map<string,string> titleMap;
 };
 
 //base class for tree objects
@@ -78,7 +82,7 @@ class TreeObjectBase {
 	public:
 		//constructor
 		TreeObjectBase() : tempFull(""), branchType("") {}
-		TreeObjectBase(string tempFull_) : tempFull(tempFull_), nameInTree(tempFull_), tagName(tempFull_), tree(nullptr) {}
+		TreeObjectBase(string tempFull_, string title_ = "") : tempFull(tempFull_), nameInTree(tempFull_), tagName(tempFull_), title(title_), tree(nullptr) {}
 		//destructor
 		virtual ~TreeObjectBase() {}
 		//functions
@@ -86,6 +90,7 @@ class TreeObjectBase {
 		virtual void Initialize(map<string,unsigned>& nameCache, edm::ConsumesCollector && iC, stringstream& message) {}
 		virtual void SetTree(TTree* tree_) { tree = tree_; }
 		virtual void AddBranch() {}
+		virtual void AddTitle() { if(branch && !title.empty()) branch->SetTitle(title.c_str()); }
 		virtual void SetDefault() {}
 		virtual void FillTree(const edm::Event& iEvent) {}
 		
@@ -108,9 +113,10 @@ class TreeObjectBase {
 		
 	protected:
 		//member variables
-		string tempFull, nameInTree, tagName, branchType;
+		string tempFull, nameInTree, tagName, branchType, title;
 		TTree* tree{};
 		edm::InputTag tag;
+		TBranch* branch{};
 };
 
 //comparator (case-insensitive sort)
@@ -132,7 +138,7 @@ class TreeObject : public TreeObjectBase {
 	public:
 		//constructor
 		TreeObject() : TreeObjectBase() {}
-		TreeObject(string tempFull_) : TreeObjectBase(tempFull_) {}
+		TreeObject(string tempFull_, string title_) : TreeObjectBase(tempFull_,title_) {}
 		//destructor
 		~TreeObject() override {}
 		//functions
@@ -194,35 +200,49 @@ class TreeObject : public TreeObjectBase {
 //specialize!
 
 template<>
-void TreeObject<bool>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),&value,(nameInTree+"/O").c_str()); }
+void TreeObject<bool>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),&value,(nameInTree+"/O").c_str()); }
 template<>
-void TreeObject<int>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),&value,(nameInTree+"/I").c_str()); }
+void TreeObject<int>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),&value,(nameInTree+"/I").c_str()); }
 template<>
-void TreeObject<double>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),&value,(nameInTree+"/D").c_str()); }
+void TreeObject<double>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),&value,(nameInTree+"/D").c_str()); }
 template<>
-void TreeObject<string>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),nameInTree.c_str(),&value); }
+void TreeObject<string>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),nameInTree.c_str(),&value); }
 template<>
-void TreeObject<TLorentzVector>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),nameInTree.c_str(),&value); }
+void TreeObject<TLorentzVector>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),nameInTree.c_str(),&value); }
 template<>
-void TreeObject<vector<bool> >::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<bool>",&value,32000,0); }
+void TreeObject<math::XYZVector>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),nameInTree.c_str(),&value); }
 template<>
-void TreeObject<vector<int> >::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<int>",&value,32000,0); }
+void TreeObject<math::XYZPoint>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),nameInTree.c_str(),&value); }
 template<>
-void TreeObject<vector<double> >::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<double>",&value,32000,0); }
+void TreeObject<vector<bool> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<bool>",&value,32000,0); }
 template<>
-void TreeObject<vector<string> >::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<string>",&value,32000,0); }
+void TreeObject<vector<int> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<int>",&value,32000,0); }
 template<>
-void TreeObject<vector<TLorentzVector> >::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<TLorentzVector>",&value,32000,0); }
+void TreeObject<vector<float> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<float>",&value,32000,0); }
 template<>
-void TreeObject<vector<vector<bool>>>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<vector<bool>>",&value,32000,0); }
+void TreeObject<vector<double> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<double>",&value,32000,0); }
 template<>
-void TreeObject<vector<vector<int>>>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<vector<int>>",&value,32000,0); }
+void TreeObject<vector<string> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<string>",&value,32000,0); }
 template<>
-void TreeObject<vector<vector<double>>>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<vector<double>>",&value,32000,0); }
+void TreeObject<vector<TLorentzVector> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<TLorentzVector>",&value,32000,0); }
 template<>
-void TreeObject<vector<vector<string>>>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<vector<string>>",&value,32000,0); }
+void TreeObject<vector<math::XYZVector> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<math::XYZVector>",&value,32000,0); }
 template<>
-void TreeObject<vector<vector<TLorentzVector>>>::AddBranch() { if(tree) tree->Branch(nameInTree.c_str(),"vector<vector<TLorentzVector>>",&value,32000,0); }
+void TreeObject<vector<math::XYZPoint> >::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<math::XYZPoint>",&value,32000,0); }
+template<>
+void TreeObject<vector<vector<bool>>>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<vector<bool>>",&value,32000,0); }
+template<>
+void TreeObject<vector<vector<int>>>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<vector<int>>",&value,32000,0); }
+template<>
+void TreeObject<vector<vector<double>>>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<vector<double>>",&value,32000,0); }
+template<>
+void TreeObject<vector<vector<string>>>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<vector<string>>",&value,32000,0); }
+template<>
+void TreeObject<vector<vector<TLorentzVector>>>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<vector<TLorentzVector>>",&value,32000,0); }
+template<>
+void TreeObject<vector<vector<math::XYZVector>>>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<vector<math::XYZVector>>",&value,32000,0); }
+template<>
+void TreeObject<vector<vector<math::XYZPoint>>>::AddBranch() { if(tree) branch = tree->Branch(nameInTree.c_str(),"vector<vector<math::XYZPoint>>",&value,32000,0); }
 
 template<>
 void TreeObject<bool>::SetDefault() { value = false; }
@@ -235,15 +255,25 @@ void TreeObject<string>::SetDefault() { value = ""; }
 template<>
 void TreeObject<TLorentzVector>::SetDefault() { value.SetXYZT(0,0,0,0); }
 template<>
+void TreeObject<math::XYZVector>::SetDefault() { value.SetXYZ(0,0,0); }
+template<>
+void TreeObject<math::XYZPoint>::SetDefault() { value.SetXYZ(0,0,0); }
+template<>
 void TreeObject<vector<bool> >::SetDefault() { value.clear(); }
 template<>
 void TreeObject<vector<int> >::SetDefault() { value.clear(); }
+template<>
+void TreeObject<vector<float> >::SetDefault() { value.clear(); }
 template<>
 void TreeObject<vector<double> >::SetDefault() { value.clear(); }
 template<>
 void TreeObject<vector<string> >::SetDefault() { value.clear(); }
 template<>
 void TreeObject<vector<TLorentzVector> >::SetDefault() { value.clear(); }
+template<>
+void TreeObject<vector<math::XYZVector> >::SetDefault() { value.clear(); }
+template<>
+void TreeObject<vector<math::XYZPoint> >::SetDefault() { value.clear(); }
 template<>
 void TreeObject<vector<vector<bool>>>::SetDefault() { value.clear(); }
 template<>
@@ -254,6 +284,10 @@ template<>
 void TreeObject<vector<vector<string>>>::SetDefault() { value.clear(); }
 template<>
 void TreeObject<vector<vector<TLorentzVector>>>::SetDefault() { value.clear(); }
+template<>
+void TreeObject<vector<vector<math::XYZVector>>>::SetDefault() { value.clear(); }
+template<>
+void TreeObject<vector<vector<math::XYZPoint>>>::SetDefault() { value.clear(); }
 
 //derived version of vector<TLorentzVector> for RecoCand
 //with switch for vector<double> pt, eta, phi, energy instead
@@ -261,7 +295,7 @@ class TreeRecoCand : public TreeObject<vector<TLorentzVector> > {
 	public:
 		//constructor
 		TreeRecoCand() : TreeObject<vector<TLorentzVector> >() {}
-		TreeRecoCand(string tempFull_, bool doLorentz_=true) : TreeObject<vector<TLorentzVector> >(tempFull_), doLorentz(doLorentz_) {}
+		TreeRecoCand(string tempFull_, string title_="", bool doLorentz_=true) : TreeObject<vector<TLorentzVector> >(tempFull_,title_), doLorentz(doLorentz_) {}
 		//destructor
 		~TreeRecoCand() override {}
 		
@@ -328,3 +362,114 @@ class TreeRecoCand : public TreeObject<vector<TLorentzVector> > {
 		bool doLorentz{};
 		vector<double> pt, eta, phi, energy;
 };
+
+// Derived version of vector<vector<T>> with switch for vector<T> values and vector<int> offsets instead
+template <typename Base = double> 
+class TreeNestedVector : public TreeObject<std::vector<std::vector<Base>>> {
+	public:
+		// Typedefs
+		typedef std::vector<Base> Sub;
+		typedef std::vector<Sub> Top;
+
+		// Constructor
+		TreeNestedVector() : TreeObject<Top>() {}
+		TreeNestedVector(string tempFull_, string title_="", bool nestedVectors_=true) : TreeObject<Top>(tempFull_,title_), nestedVectors(nestedVectors_) {}
+		// Destructor
+		~TreeNestedVector() override {}
+		
+		// Functions
+		// From: https://stackoverflow.com/questions/17294629/merging-flattening-sub-vectors-into-a-single-vector-c-converting-2d-to-1d
+		void flatten(Top const& all, Sub &accum, vector<int> &offsets) {
+			// Don't store any offsets if there are no sub-vectors
+			if (all.size() > 0)	offsets.insert(std::end(offsets),0);
+			else 				return;
+			for(auto& sub : all) {
+				accum.insert(std::end(accum), std::begin(sub), std::end(sub));
+				offsets.insert(std::end(offsets), accum.size());
+			}
+			// This protects against the case where there were >=1 empty sub-vectors, and only empty vectors
+			// Thus, nothing will be in the output (accum) vector, but the offsets would be all '0'
+			if (accum.size() == 0) offsets.clear();
+		}
+		void SetConsumes(edm::ConsumesCollector && iC) override{
+			tok = iC.consumes<Top>(this->tag);
+		}
+		void FillTree(const edm::Event& iEvent) override{
+			SetDefault();
+			edm::Handle<Top> var;
+			iEvent.getByToken(tok,var);
+			if( var.isValid() ) {
+				if(nestedVectors){
+					this->value = *var;
+				}
+				else{
+					size_t totalLength = 0;
+					for(auto iOuter = var->begin(); iOuter != var->end(); ++iOuter) {
+						totalLength += iOuter->size();
+					}
+					values.reserve(totalLength);
+					offsets.reserve(var->size());
+					flatten(*var,values,offsets);
+				}
+			}
+			else {
+				edm::LogWarning("TreeMaker") << "WARNING ... " << this->tagName << " is NOT valid?!";
+			}
+		}
+		void AddBranch() override {
+			if(this->tree){
+				if(nestedVectors){
+					this->tree->Branch(this->nameInTree.c_str(),GetTopType().c_str(),&this->value,32000,0);
+				}
+				else {
+					this->tree->Branch((this->nameInTree).c_str(),GetSubType().c_str(),&values,32000,0);
+					this->tree->Branch((this->nameInTree+"Offsets").c_str(),"vector<int>",&offsets,32000,0);
+				}
+			}
+		}
+		void SetDefault() override {
+			if(nestedVectors){
+				this->value.clear();
+			}
+			else{
+				values.clear();
+				offsets.clear();
+			}
+		}
+		const string GetTopType() {
+			return "vector<" + GetSubType() + ">";
+		}
+		const string GetSubType() {
+			return "vector<" + GetBaseType() + ">";
+		}
+		// Default implementation
+		const string GetBaseType() {
+			return typeid(Base).name();
+		}
+
+	protected:
+		// Member variables
+		edm::EDGetTokenT<Top> tok;
+		bool nestedVectors{};
+		Sub values;
+		vector<int> offsets;
+};
+
+// A specialization for each type where you don't like the string returned by typeid
+template <>
+const string TreeNestedVector<bool>::GetBaseType() { return "bool"; }
+template <>
+const string TreeNestedVector<int>::GetBaseType() { return "int"; }
+template <>
+const string TreeNestedVector<double>::GetBaseType() { return "double"; }
+template <>
+const string TreeNestedVector<string>::GetBaseType() { return "string"; }
+template <>
+const string TreeNestedVector<TLorentzVector>::GetBaseType() { return "TLorentzVector"; }
+template <>
+const string TreeNestedVector<math::XYZVector>::GetBaseType() { return "math::XYZVector"; }
+template <>
+const string TreeNestedVector<math::XYZPoint>::GetBaseType() { return "math::XYZPoint"; }
+
+
+

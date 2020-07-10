@@ -44,6 +44,7 @@ class maker:
         # special signal stuff
         self.getParamDefault("systematics",True);
         self.getParamDefault("semivisible",True);
+        self.getParamDefault("emerging",False);
         self.getParamDefault("deepAK8",True);
         self.getParamDefault("deepDoubleB",True);
         
@@ -52,8 +53,13 @@ class maker:
         
         # other options off by default
         self.getParamDefault("debugtracks", False)
+        self.getParamDefault("debugtap", False)
+        self.getParamDefault("debugsubjets", False)
         self.getParamDefault("applybaseline", False)
         self.getParamDefault("saveMinimalGenParticles", True)
+        self.getParamDefault("saveGenTops", False)
+        self.getParamDefault("doMT2",False)
+        self.getParamDefault("nestedVectors", True)
         
         # take command line input (w/ defaults from scenario if specified)
         self.getParamDefault("globaltag",self.scenario.globaltag)
@@ -63,6 +69,7 @@ class maker:
         self.getParamDefault("pmssm",self.scenario.pmssm)
         self.getParamDefault("fastsim",self.scenario.fastsim)
         self.getParamDefault("signal",self.scenario.signal)
+        self.getParamDefault("scan",self.scenario.scan)
         self.getParamDefault("jsonfile",self.scenario.jsonfile)
         self.getParamDefault("jecfile",self.scenario.jecfile)
         self.getParamDefault("residual",self.scenario.residual)
@@ -91,14 +98,19 @@ class maker:
         if self.dataset!=[] :    
             self.readFiles.extend( [self.dataset] )
 
-        self.readFiles = [(self.redir if val[0:6]=="/store" else "")+val for val in self.readFiles]
+        self.readFiles = [(self.redir if val.startswith("/") else "")+val for val in self.readFiles]
         
         # branches for treemaker
         self.VectorRecoCand             = cms.vstring()
+        self.VarsXYZVector              = cms.vstring()
+        self.VarsXYZPoint               = cms.vstring()
         self.VarsDouble                 = cms.vstring()
         self.VarsInt                    = cms.vstring()
         self.VarsBool                   = cms.vstring()
         self.VectorTLorentzVector       = cms.vstring()
+        self.VectorXYZVector            = cms.vstring()
+        self.VectorXYZPoint             = cms.vstring()
+        self.VectorFloat                = cms.vstring()
         self.VectorDouble               = cms.vstring()
         self.VectorString               = cms.vstring()
         self.VectorInt                  = cms.vstring()
@@ -108,6 +120,9 @@ class maker:
         self.VectorVectorDouble         = cms.vstring()
         self.VectorVectorString         = cms.vstring()
         self.VectorVectorTLorentzVector = cms.vstring()
+        self.VectorVectorXYZVector      = cms.vstring()
+        self.VectorVectorXYZPoint       = cms.vstring()
+        self.TitleMap                   = cms.vstring()
 
     def getParamDefault(self,param,default):
         setattr(self,param,self.parameters.value(param,default))
@@ -121,6 +136,7 @@ class maker:
         print " storing hadtau variables: "+str(self.hadtau)+" w/ reclustering "+str(self.hadtaurecluster)
         print " storing Zinv variables: "+str(self.doZinv)
         print " storing semi-visible jet variables: "+str(self.semivisible)
+        print " storing emerging jet variables: "+str(self.emerging)
         print " storing deepAK8 variables: "+str(self.deepAK8)
         print " storing deepDoubleB variables: "+str(self.deepDoubleB)
         print " "
@@ -128,8 +144,14 @@ class maker:
         print " storing PDF weights: "+str(self.doPDFs)
         print " "
         print " storing track debugging variables: "+str(self.debugtracks)
+        print " storing TAP collection debugging variables: "+str(self.debugtap)
+        print " storing subjet debugging variables: "+str(self.debugsubjets)
         print " Applying baseline selection filter: "+str(self.applybaseline)
         print " Storing a minimal set of GenParticles: "+str(self.saveMinimalGenParticles)
+        print " Storing the GenTops: "+str(self.saveGenTops)
+        print " Saving the MT2 variable: "+str(self.doMT2)
+        if self.nestedVectors: print " Saving nested vectors as vector<vector<T>>"
+        else: print " Saving nested vectors as vector<T> + vector<int>"
         print " "
         print " scenario: "+self.scenarioName
         print " global tag: "+self.globaltag
@@ -138,6 +160,7 @@ class maker:
         print " Including gen-level information: "+str(self.geninfo)
         print " Including pMSSM-related information: "+str(self.pmssm)
         print " Using fastsim settings: "+str(self.fastsim)
+        print " Using scan settings: "+str(self.scan)
         print " Running signal uncertainties: "+str(self.signal)
         if len(self.jsonfile)>0: print " JSON file applied: "+self.jsonfile
         if len(self.jecfile)>0: print " JECs applied: "+self.jecfile+(" (residuals)" if self.residual else "")

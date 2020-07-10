@@ -25,6 +25,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TreeMaker/Utils/interface/EnergyFractionCalculator.h"
 
@@ -37,7 +38,11 @@ class NamedPtrBase {
 	public:
 		//constructor
 		NamedPtrBase() : name(""), fraction(false) {}
-		NamedPtrBase(std::string name_, edm::stream::EDProducer<>* edprod, const edm::ParameterSet& iConfig) : name(name_), fraction(name.find("Fraction")!=std::string::npos) {
+		NamedPtrBase(std::string name_, edm::stream::EDProducer<>* edprod, const edm::ParameterSet& iConfig) : 
+			name(name_),
+			fraction(name.find("Fraction")!=std::string::npos),
+			response(name.find("response")!=std::string::npos)
+		{
 			if(iConfig.exists(name)) extraInfo = iConfig.getParameter<std::vector<std::string>>(name);
 		}
 		//destructor
@@ -47,10 +52,12 @@ class NamedPtrBase {
 		virtual void reset() { }
 		virtual void get_property(const pat::Jet& Jet) { }
 		virtual void get_property(const EnergyFractionCalculator& Jet) { }
+		virtual void get_property(const pat::Jet& Jet, const edm::View<reco::GenJet>& GenSubjets) { }
 	
 		//member variables
 		std::string name;
 		bool fraction;
+		bool response;
 		std::vector<std::string> extraInfo;		
 };
 
@@ -215,15 +222,21 @@ DEFAULT_NAMED_PTR(bDiscriminator,bJetTagDeepFlavourprobg);
 DEFAULT_NAMED_PTR(bDiscriminator,bJetTagDeepFlavourproblepb);
 DEFAULT_NAMED_PTR(bDiscriminator,bJetTagDeepFlavourprobbb);
 DEFAULT_NAMED_PTR(bDiscriminator,bJetTagDeepFlavourprobuds);
-DEFAULT_NAMED_PTR(bDiscriminator,tDiscriminatorDeep);
-DEFAULT_NAMED_PTR(bDiscriminator,wDiscriminatorDeep);
-DEFAULT_NAMED_PTR(bDiscriminator,zDiscriminatorDeep);
-DEFAULT_NAMED_PTR(bDiscriminator,hDiscriminatorDeep);
-DEFAULT_NAMED_PTR(bDiscriminator,tDiscriminatorDeepDecorrel);
-DEFAULT_NAMED_PTR(bDiscriminator,wDiscriminatorDeepDecorrel);
-DEFAULT_NAMED_PTR(bDiscriminator,zhDiscriminatorDeepDecorrel);
-DEFAULT_NAMED_PTR(bDiscriminator,deepDoubleBDiscriminatorH);
-DEFAULT_NAMED_PTR(bDiscriminator,deepDoubleBDiscriminatorQ);
+DEFAULT_NAMED_PTR(bDiscriminator,pfDeepBoostedDiscriminatorsJetTagsTvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfDeepBoostedDiscriminatorsJetTagsWvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfDeepBoostedDiscriminatorsJetTagsZvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfDeepBoostedDiscriminatorsJetTagsHbbvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfDeepBoostedDiscriminatorsJetTagsZbbvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsTvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsWvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsZvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsHbbvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsZHbbvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsZbbvsQCD);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassDecorrelatedDeepBoostedDiscriminatorsJetTagsbbvsLight);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassIndependentDeepDoubleBvLJetTagsProbHbb);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassIndependentDeepDoubleCvLJetTagsProbHcc);
+DEFAULT_NAMED_PTR(bDiscriminator,pfMassIndependentDeepDoubleCvBJetTagsProbHcc);
 
 class NamedPtr_jecFactor : public NamedPtr<double> {
 	public:
@@ -254,7 +267,7 @@ class NamedPtr_softDropMass : public NamedPtr<double> {
 			LorentzVector fatJet;
 			auto const & subjets = Jet.subjets(extraInfo.at(0));
 			for ( auto const & it : subjets ) {
-				fatJet += it->correctedP4(0);
+				fatJet += it->p4();
 			}
 			push_back(fatJet.M());
 		}
@@ -386,7 +399,7 @@ class NamedPtr_subjets : public NamedPtr<std::vector<TLorentzVector>> {
 			const auto& subjets = Jet.subjets(extraInfo.at(0));
 			subvecs.reserve(subjets.size());
 			for (const auto& subjet : subjets) {
-				const auto& p4 = subjet->correctedP4(0);
+				const auto& p4 = subjet->p4();
 				subvecs.emplace_back(p4.px(),p4.py(),p4.pz(),p4.energy());
 			}
 			ptr->push_back(subvecs);
@@ -396,6 +409,47 @@ DEFINE_NAMED_PTR(subjets);
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 //subjet floats
+
+class NamedPtr_SJjec : public NamedPtr<std::vector<double>> {
+	public:
+		using NamedPtr<std::vector<double>>::NamedPtr;
+		void get_property(const pat::Jet& Jet) override {
+			std::vector<double> vec;
+			auto const & subjets = Jet.subjets(extraInfo.at(0));
+			vec.reserve(subjets.size());
+			for ( auto const & it : subjets ) {
+				vec.push_back(it->jecFactor(it->availableJECLevels().back())/it->jecFactor("Uncorrected"));
+			}
+			ptr->push_back(vec);
+		}
+};
+DEFAULT_NAMED_PTR(SJjec,jecFactorSubjets);
+
+class NamedPtr_SJresp : public NamedPtr<std::vector<double>> {
+	public:
+		using NamedPtr<std::vector<double>>::NamedPtr;
+		void get_property(const pat::Jet& Jet, const edm::View<reco::GenJet>& GenSubjets) override {
+			bool matched = false;
+			std::vector<double> vec;
+			auto const & subjets = Jet.subjets(extraInfo.at(0));
+			vec.reserve(subjets.size());
+			for ( auto const & it : subjets ) {
+				matched = false;
+				for ( auto const & gsj : GenSubjets ) {
+					if ( reco::deltaR(*it, gsj) < 0.1 ) {
+						vec.push_back(it->pt()/gsj.pt());
+						matched = true;
+						break;
+					}
+				} // loop through all of the gen subjets
+				if (!matched) {
+					vec.push_back(0);
+				}
+			} // loop through the subjets for a given jet
+			ptr->push_back(vec);
+		}
+};
+DEFAULT_NAMED_PTR(SJresp,SJresponse);
 
 class NamedPtr_SJD : public NamedPtr<std::vector<double>> {
 	public:
@@ -459,8 +513,9 @@ private:
 	void produce(edm::Event&, const edm::EventSetup&) override;
 	std::string debugMessage(const pat::Jet& Jet, const std::string& name, int indent=0);
 	
-	edm::InputTag JetTag_;
+	edm::InputTag JetTag_, GenSubjetTag_;
 	edm::EDGetTokenT<edm::View<pat::Jet>> JetTok_;
+	edm::EDGetTokenT<edm::View<reco::GenJet>> GenSubjetTok_;
 	std::vector<NamedPtrBase*> Ptrs_;
 	bool debug;
 };
@@ -474,9 +529,15 @@ JetProperties::JetProperties(const edm::ParameterSet& iConfig)
 	JetTok_ = consumes<edm::View<pat::Jet>>(JetTag_);
 	debug = iConfig.getParameter<bool>("debug");
 
+	//get gen subjet values only if that collection is necessary
+	if (iConfig.exists("GenSubjetTag")) {
+		GenSubjetTag_ = iConfig.getParameter<edm::InputTag>("GenSubjetTag");
+		GenSubjetTok_ = consumes<edm::View<reco::GenJet>>(GenSubjetTag_);
+	}
+
 	//get lists of desired properties
 	std::vector<std::string> props = iConfig.getParameter<std::vector<std::string>> ("properties");
-	
+
 	auto fac = NamedPtrFactory::get();
 	Ptrs_.reserve(props.size());
 	//register your products
@@ -510,12 +571,15 @@ JetProperties::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 
 	edm::Handle< edm::View<pat::Jet> > Jets;
+	edm::Handle< edm::View<reco::GenJet> > GenSubjets;
 	iEvent.getByToken(JetTok_,Jets);
+	if (!GenSubjetTok_.isUninitialized()) iEvent.getByToken(GenSubjetTok_,GenSubjets);
 	if( Jets.isValid() ) {
 		for(const auto& Jet : *Jets){
 			EnergyFractionCalculator efc(Jet);
 			for(auto & Ptr : Ptrs_){
 				if(Ptr->fraction) Ptr->get_property(efc);
+				else if(GenSubjets.isValid() && Ptr->response) Ptr->get_property(Jet,*GenSubjets);
 				else Ptr->get_property(Jet);
 			}
 			//for debugging: print out available subjet collections, btag discriminators, userfloats/ints

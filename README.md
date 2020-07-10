@@ -10,6 +10,8 @@
 - [Info for New Samples](#info-for-new-samples)
     - [Samples with Negative Weight Events](#samples-with-negative-weight-events)
 - [Options](#options)
+- [Notes for Contributors](#notes-for-contributors)
+    - [Docker](#docker)
 
 <!-- /MarkdownTOC -->
 
@@ -21,7 +23,7 @@ The following installation instructions assume the user wants to process 2016, 2
 wget https://raw.githubusercontent.com/TreeMaker/TreeMaker/Run2_2017/setup.sh
 chmod +x setup.sh
 ./setup.sh
-cd CMSSW_10_2_11_patch1/src/
+cd CMSSW_10_2_21/src/
 cmsenv
 cd TreeMaker/Production/test
 ```
@@ -30,9 +32,13 @@ The script [setup.sh](./setup.sh) has options to allow installing a different fo
 (though some branches may have different setup scripts, so check carefully which one you download):
 * `-f [fork]`: which fork to download (`git@github.com:fork/TreeMaker.git`, default = TreeMaker)
 * `-b [branch]`: which branch to download (`-b branch`, default = Run2_2017)
-* `-c [version]`: which CMSSW version to use (default = CMSSW_10_2_11_patch1)
+* `-B`: configure some settings for checkout within batch setups
+* `-c [version]`: which CMSSW version to use (default = CMSSW_10_2_21)
 * `-a [protocol]`: which protocol to use for `git clone` (default = ssh, alternative = https)
 * `-j [cores]`: run CMSSW compilation on # cores (default = 8)
+* `-n [name]`: name of the CMSSW directory if not CMSSW_X_Y_Z (default = CMSSW_10_2_21)
+* `-d [dir]`: project installation area for the CMSSW directory (default = ${PWD})
+* `-D`: print additional debug statements (default = false)
 * `-h`: display help message and exit
 
 Several predefined scenarios are available for ease of production.
@@ -41,24 +47,27 @@ global tag, collection tag name, generator info, fastsim, signal, JSON file, JEC
 The available scenarios are:  
 1.  `Summer16`: for Summer16 miniAOD MC (80X)
 2.  `Summer16sig`: for Summer16 miniAOD MC (80X) (signal)
-3.  `Summer16v3`: for Summer16 miniAODv3 MC  
-4.  `Summer16v3sig`: for Summer16 miniAODv3 MC (signal)  
-5.  `Summer16v3Fast`: for Summer16 miniAODv3 FastSim MC (background)  
-6.  `Summer16v3Fastsig`: for Summer16 miniAODv3 FastSim MC (signal)  
-7.  `2016ReReco17Jul`: for 2016 miniAODv3 data (17Jul2018), periods B-H  
-8.  `Fall17`: for Fall17 miniAOD MC
-9.  `Fall17sig`: for Fall17 miniAOD MC (signal)
-10. `Fall17Fast`: for Fall17 miniAOD FastSim MC (background)
-11. `Fall17Fastsig`: for Fall17 miniAOD FastSim MC (signal)
-12. `2017ReReco31Mar`: for 2017 ReReco data (31Mar), periods B-F
-13. `Autumn18`: for Autumn18 miniAOD MC (102X)
-14. `Autumn18sig`: for Autumn18 miniAOD MC (102X) (signal)
-15. `Autumn18Fast`: for Autumn18 miniAOD FastSim MC (background)
-16. `Autumn18Fastsig`: for Autumn18 miniAOD FastSim MC (signal)
-17. `2018B26Sep`: for 2018 prompt data, partial period B
-18. `2018B26SepHEM`: for 2018 prompt data, partial period B, with the HEM 15/16 issue
-19. `2018PromptReco`: for 2018 prompt data (or 22Jan2019, produced w/ prompt conditions), run period D
-20. `2018ReReco17Sep`: for 17Sep2018 rereco data, periods A, B, and C
+3.  `Summer16v3`: for Summer16 miniAODv3 MC
+4.  `Summer16v3sig`: for Summer16 miniAODv3 MC (signal)
+5.  `Summer16v3sigscan`: for Summer16 miniAODv3 MC with multiple mass points(signal)
+6.  `Summer16v3Fast`: for Summer16 miniAODv3 FastSim MC (background)  
+7.  `Summer16v3Fastsig`: for Summer16 miniAODv3 FastSim MC (signal)  
+8.  `2016ReReco17Jul`: for 2016 miniAODv3 data (17Jul2018), periods B-H  
+9.  `Fall17`: for Fall17 miniAOD MC
+10. `Fall17sig`: for Fall17 miniAOD MC (signal)
+11. `Fall17sigscan`: for Fall17 miniAOD MC with multiple mass points (signal)
+12. `Fall17Fast`: for Fall17 miniAOD FastSim MC (background)
+13. `Fall17Fastsig`: for Fall17 miniAOD FastSim MC (signal)
+14. `2017ReReco31Mar`: for 2017 ReReco data (31Mar), periods B-F
+15. `Autumn18`: for Autumn18 miniAOD MC (102X)
+16. `Autumn18sig`: for Autumn18 miniAOD MC (102X) (signal)
+17. `Autumn18sigscan`: for Autumn18 miniAOD MC with multiple mass points (102X) (signal)
+18. `Autumn18Fast`: for Autumn18 miniAOD FastSim MC (background)
+19. `Autumn18Fastsig`: for Autumn18 miniAOD FastSim MC (signal)
+20. `2018B26Sep`: for 2018 prompt data, partial period B
+21. `2018B26SepHEM`: for 2018 prompt data, partial period B, with the HEM 15/16 issue
+22. `2018PromptReco`: for 2018 prompt data (or 22Jan2019, produced w/ prompt conditions), run period D
+23. `2018ReReco17Sep`: for 17Sep2018 rereco data, periods A, B, and C
 
 ## Unit Tests (Interactive Runs)
 
@@ -107,6 +116,7 @@ Python:
 * `-A, --args [list]`: additional common args to use for all jobs (passed to [runMakeTreeFromMiniAOD_cfg.py](./Production/test/runMakeTreeFromMiniAOD_cfg.py))
 * `-v, --verbose`: enable verbose output (default = False)
 * `-x, --redir`: input file redirector
+* `-f, --use-folders`: store the output in folders based on era and dataset (default = False)
 
 Shell (in [step2.sh](./Production/test/condorSub/step2.sh)):
 * `-o [dir]`: output directory
@@ -159,11 +169,6 @@ For MC samples, it can also automatically generate the appropriate configuration
 The script can also check to see which sites (if any) have 100% dataset presence for the sample (enabled with `-s`).
 (You may also need `export SSL_CERT_DIR='/etc/pki/tls/certs:/etc/grid-security/certificates'` (bash) or `setenv SSL_CERT_DIR '/etc/pki/tls/certs:/etc/grid-security/certificates'` (tcsh) to avoid the error `SSL: CERTIFICATE_VERIFY_FAILED` from `urllib2`.)
 
-Before running the script for the first time, some environment settings are necessary:
-```
-source /cvmfs/cms.cern.ch/crab3/crab.csh
-```
-
 To run the script:
 ```
 python get_py.py -d dict.py [options]
@@ -173,6 +178,20 @@ To check for new samples, use the above script [get_mcm.py](./Production/test/ge
 ```
 dasgoclient -query="dataset=/*/RunIISpring16MiniAOD*/MINIAODSIM"
 ```
+
+A convenient config to compute cross sections using the official GenXSecAnalyzer tool is provided, and can be used as follows:
+```
+cmsRun xsecfinder_cfg.py name=Autumn18.TTGamma_Dilept_TuneCP5_13TeV_madgraph_pythia8_ext1 numevents=1e7
+```
+
+For samples generated with MadGraph, the LHE header can be dumped, including the PDF weight definitions:
+```
+cmsRun pdffinder_cfg.py name=Autumn18.TTGamma_Dilept_TuneCP5_13TeV_madgraph_pythia8_ext1
+```
+
+In both configs, an alternate xrootd redirector can be specified with the `redir` argument (default value: `root://cmsxrootd.fnal.gov/`).
+A site name (such as T1_US_FNAL) can also be provided, in which case the config will attempt to read the files
+from only the specified site using the [SAM access test](https://twiki.cern.ch/twiki/bin/view/Main/XrootdMonitoring#Access_test) method.
 
 ### Samples with Negative Weight Events
 
@@ -206,7 +225,7 @@ python get_py.py dict=dictNLO.py py=False
 
 ## Options
 
-Brief explanation of the options in [makeTree.py](./TreeMaker/python/makeTree.py)
+Brief explanation of the options in [maker.py](./TreeMaker/python/maker.py)
 * `scenario`: the scenario name, in case of special requirements (default="")
 * `inputFilesConfig`: name of the python file with a list of ROOT files for a sample, used for Condor production (automatically appended with "_cff") (default="")
 * `nstart`: first file to use in above file list (default=0)
@@ -222,13 +241,19 @@ Brief explanation of the options in [makeTree.py](./TreeMaker/python/makeTree.py
 * `doZinv`: switch to enable the Z->invisible background estimation processes (default=True)
 * `systematics`: switch to enable JEC- and JER-related systematics (default=True)
 * `semivisible`: switch to enable variables for semi-visible jets (default=True)
+* `emerging`: switch to enable variables for emerging jets (default=False)
 * `deepAK8`: switch to enable variables from the DeepAK8 tagger (default=True)
 * `deepDoubleB`: switch to enable variables from the DeepDoubleB tagger (default=True)
 * `doPDFs`: switch to enable the storage of PDF weights and scale variation weights from LHEEventInfo (default=True)  
   The scale variations stored are: [mur=1, muf=1], [mur=1, muf=2], [mur=1, muf=0.5], [mur=2, muf=1], [mur=2, muf=2], [mur=2, muf=0.5], [mur=0.5, muf=1], [mur=0.5, muf=2], [mur=0.5, muf=0.5]
 * `debugtracks`: store information for all PF candidates in every event (default=False) (use with caution, increases run time and output size by ~10x)
+* `debugtap`: store extra information for the TAP collections (default=False)
+* `debugsubjets`: store some additional information for the AK8 subjets (default=False)
 * `applybaseline`: switch to apply the baseline HT selection (default=False)
 * `saveMinimalGenParticles`: save only the hard scatter gen particles coming from top decays, boson decays, semi-visible jets, or SUSY particles (default=True)
+* `saveGenTops`: save the 4-vectors of the generated tops and the TTbar reweighting scale factor (default=False)
+* `doMT2`: switch to enable the storage of the MT2 variable (default=False)
+* `nestedVectors`: switch to change from saving vector<\vector<T>> to saving vector<T> values and vector<\int> offsets (default=True)
 
 The following parameters take their default values from the specified scenario:
 * `globaltag`: global tag for CMSSW database conditions (ref. [FrontierConditions](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions))
@@ -236,6 +261,7 @@ The following parameters take their default values from the specified scenario:
 * `geninfo`: switch to enable use of generator information, should only be used for MC
 * `fastsim`: switch to enable special settings for SUSY signal scans produced with FastSim
 * `pmssm`: switch to enable special settings for pMSSM signal scans
+* `scan`: switch to enable special settings for scans produced with FullSim
 * `signal`: switch to enable assessment of signal systematics (currently unused)
 * `jsonfile`: name of JSON file to apply to data
 * `jecfile`: name of a database file from which to get JECs
@@ -256,3 +282,13 @@ Extra options in [runMakeTreeFromMiniAOD_cfg.py](./Production/test/runMakeTreeFr
 * `tmi`: enable [TimeMemoryInfo](https://github.com/cms-sw/cmssw/blob/master/Validation/Performance/python/TimeMemoryInfo.py) for simple profiling (default=False)
 * `trace`: enable the tracer for debugging (default=False)
 * `debugjets`: print out user floats and discriminators for each jet collection (default=False)
+
+## Notes for Contributors
+
+### Docker
+
+Two Docker images containing the TreeMaker software will be created upon push or pull request to the default TreeMaker branch. For more information about these images see the [TreeMaker wiki](https://github.com/TreeMaker/TreeMaker/wiki/Docker%20Integration%20Test).
+
+In order to cancel or limit these builds one can add the following strings to their commit message:
+* `[skip build]`: neither image will be created
+* `[skip test]`: the no-cache image will be created, but the image containing the CVMFS cache will be skipped
