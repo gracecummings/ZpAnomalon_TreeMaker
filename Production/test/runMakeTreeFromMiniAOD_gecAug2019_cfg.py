@@ -8,14 +8,14 @@ from TreeMaker.TreeMaker.maker import maker
 theMaker = maker(parameters)
 
 # run-only parameters
-reportfreq=parameters.value("reportfreq",1000)
-dump=parameters.value("dump",False)
-mp=parameters.value("mp",False)
-threads=parameters.value("threads",1)
-streams=parameters.value("streams",0)
-tmi=parameters.value("tmi",False)
-trace=parameters.value("trace",False)
-debugjets=parameters.value("debugjets",False)
+reportfreq = parameters.value("reportfreq",1000)
+dump       = parameters.value("dump",False)
+mp         = parameters.value("mp",False)
+threads    = parameters.value("threads",1)
+streams    = parameters.value("streams",0)
+tmi        = parameters.value("tmi",False)
+trace      = parameters.value("trace",False)
+debugjets  = parameters.value("debugjets",False)
 
 # print out settings
 print "***** SETUP ************************************"
@@ -39,10 +39,11 @@ if len(theMaker.localera)>0:
 process = cms.Process("RA2EventSelection",*eralist)
 
 # configure geometry & conditions
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+#gec is commenting out stuff blindly, hopefully noted
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")#gec comment
+process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")#gec comment
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")#gec comment
 process.GlobalTag.globaltag = theMaker.globaltag
 
 # log output
@@ -83,6 +84,8 @@ if trace:
 # setup makeTree modules
 process = theMaker.makeTreeFromMiniAOD(process)
 
+print "|||| now back in the run config ||||"
+
 # to check user floats and discriminators
 if debugjets:
     from HLTrigger.Configuration.common import producers_by_type
@@ -93,7 +96,3 @@ if debugjets:
 if dump:
     print process.dumpPython()
     sys.exit(0)
-
-#JEC debugging
-#print process
-#print dir(process)

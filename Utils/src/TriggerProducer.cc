@@ -57,7 +57,8 @@ private:
   std::vector<std::string> parsedTrigNamesVec;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> trigObjCollToken;
   bool saveHLTObj = false;
-  std::string saveHLTObjPath, saveHLTObjName;
+  std::vector<std::string> saveHLTObjPaths;
+  std::string saveHLTObjName;
   std::unordered_map<std::string,std::pair<unsigned,int>> parsedTrigMap;
 };
 
@@ -119,7 +120,7 @@ TriggerProducer::TriggerProducer(const edm::ParameterSet& iConfig)
 
   saveHLTObj = iConfig.getParameter<bool>("saveHLTObj");
   if(saveHLTObj) {
-    saveHLTObjPath = iConfig.getParameter<std::string>("saveHLTObjPath");
+    saveHLTObjPaths = iConfig.getParameter<std::vector<std::string> >("saveHLTObjPaths");
     saveHLTObjName = iConfig.getParameter<std::string>("saveHLTObjName");
     produces<std::vector<TLorentzVector> >(saveHLTObjName);
   }
@@ -203,19 +204,36 @@ TriggerProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
     //save the trigger object corresponding to the trigger path. Obtained code from https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2016#Trigger
     // loop over selected trigger objects                                                                                              
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
+
       if(obj.pt() < 25.0) continue;//look for HLT objects with Pt > 25GeV only.
       obj.unpackPathNames(trigNames);
+
       const std::vector<std::string>& pathNamesAll = obj.pathNames(false);
-      for (const auto& pathName : pathNamesAll){
+      for (const auto& pathName : pathNamesAll){ // loop over all HLT paths
         bool isBoth = obj.hasPathName( pathName, true, true );//object is associated with l3 filter and associated to the last filter of a successful path. this object caused the trigger to fire.
-        if(isBoth && pathName.find(saveHLTObjPath)!= std::string::npos){
-          hltObj->emplace_back(obj.px(),obj.py(),obj.pz(),obj.energy());
-          break;
+
+        if(!isBoth) continue;
+
+        bool findSaveHLTObjPaths = false;
+        for (unsigned int iPath = 0; iPath<saveHLTObjPaths.size(); iPath++){
+             if(pathName.find(saveHLTObjPaths[iPath]) != std::string::npos){
+                findSaveHLTObjPaths = true;
+                break;
+             }
         }
-      }
-    }
+
+        if(findSaveHLTObjPaths){
+          hltObj->emplace_back(obj.px(),obj.py(),obj.pz(),obj.energy());
+          //break;
+        }
+
+      }// loop over all HLT paths
+
+    }// loop over all trigger objects
+
     iEvent.put(std::move(hltObj),saveHLTObjName);
-  }
+
+  }// if saveHLTObj
 
   iEvent.put(std::move(passTrigVec),"TriggerPass");
   iEvent.put(std::move(trigPrescaleVec),"TriggerPrescales");

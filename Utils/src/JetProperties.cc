@@ -614,6 +614,11 @@ JetProperties::debugMessage(const pat::Jet& Jet, const std::string& name, int in
 	message << s_indent << "btagDiscriminatorNames: ";
 	for(const auto& bt : btagLabels) message << bt.first << " ";
 	message << "\n";
+
+	const auto& jeclvls = Jet.availableJECLevels();
+	message << s_indent << "availableJECLevels: ";
+	std::copy(jeclvls.begin(), jeclvls.end(), std::ostream_iterator<std::string>(message, " "));
+	message << "\n";
 	
 	const auto& floatLabels = Jet.userFloatNames();
 	message << s_indent << "userFloatNames: ";

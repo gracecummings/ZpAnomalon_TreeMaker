@@ -150,11 +150,19 @@ triggerNameList = cms.vstring(
     'HLT_Photon90_CaloIdL_PFHT700_v',
     'HLT_Photon135_PFMET100_v',
     'HLT_Photon165_HE10_v',
+    ########################################
+    # Single Photon control region triggers#
+    ########################################
+    'HLT_Photon50_R9Id90_HE10_IsoM_v',
+    'HLT_Photon75_R9Id90_HE10_IsoM_v',
+    'HLT_Photon90_R9Id90_HE10_IsoM_v',
+    'HLT_Photon120_R9Id90_HE10_IsoM_v',
     'HLT_Photon165_R9Id90_HE10_IsoM_v',
+    ########################################
     'HLT_Photon175_v',
     'HLT_Photon200_v',
     'HLT_Photon300_NoHE_v',
-    'HLT_TkMu50_v',
+    'HLT_TkMu50_v', # not available in 2018
     'HLT_TkMu100_v',    
     ])))
 )

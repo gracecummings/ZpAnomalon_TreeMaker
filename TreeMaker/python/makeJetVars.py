@@ -15,7 +15,7 @@ def makeMHTVars(self, process, JetTag, HTJetsTag, storeProperties, suff, MHTsuff
         MHTJets.VetoMaxEta = process.pfCandidateJetsWithEEnoise.maxEtaThreshold
         MHTJets.VetoRawPt = process.pfCandidateJetsWithEEnoise.userawPt
     setattr(process,"MHTJets"+suff+MHTsuff,MHTJets)
-    if storeProperties>1: self.VectorBool.extend(['MHTJets'+suff+MHTsuff+':SubJetMask(Jets'+suff+'_MHT'+MHTsuff+'Mask)'])
+    if storeProperties>0: self.VectorBool.extend(['MHTJets'+suff+MHTsuff+':SubJetMask(Jets'+suff+'_MHT'+MHTsuff+'Mask)'])
     MHTJetsTag = cms.InputTag("MHTJets"+suff+MHTsuff)
     
     from TreeMaker.Utils.mhtdouble_cfi import mhtdouble
@@ -256,6 +256,19 @@ def makeJetVarsAK8(self, process, JetTag, suff, storeProperties, SkipTag=cms.VIn
 
     # get more substructure
     if self.semivisible and storeProperties>1:
+        from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
+        NjettinessBeta1 = Njettiness.clone(
+            src = GoodJetsTag,
+            cone = cms.double(0.8),
+            storeAxes = cms.bool(True),
+            Njets = cms.vuint32(1),
+            beta = cms.double(1.0)
+        )
+        setattr(process,"NjettinessBeta1"+suff,NjettinessBeta1)
+        NjettinessBeta2 = NjettinessBeta1.clone(
+            beta = cms.double(2.0)
+        )
+        setattr(process,"NjettinessBeta2"+suff,NjettinessBeta2)
         BasicSubstructure = cms.EDProducer("BasicSubstructureProducer",
             JetTag = GoodJetsTag
         )
@@ -301,19 +314,34 @@ def makeJetVarsAK8(self, process, JetTag, suff, storeProperties, SkipTag=cms.VIn
             JetTag       = GoodJetsTag,
             properties = cms.vstring(
                 "softDropMass"          ,
+                #"NsubjettinessTau1"     ,
+                #"NsubjettinessTau2"     ,
+                #"NsubjettinessTau3"     ,
                 "bDiscriminatorCSV"     ,
                 "subjets"               ,
                 "SJbDiscriminatorCSV"   ,
             )
         )
         # specify userfloats
-        JetPropertiesAK8.softDropMass = cms.vstring('SoftDropPuppiUpdated') # computed from subjets
-        JetPropertiesAK8.bDiscriminatorCSV = cms.vstring('pfBoostedDoubleSecondaryVertexAK8BJetTags')
-        JetPropertiesAK8.subjets = cms.vstring('SoftDropPuppiUpdated')
+        #JetPropertiesAK8.prunedMass = cms.vstring('ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass')
+        JetPropertiesAK8.softDropMass = cms.vstring('SoftDropPuppi') # computed from subjets
+	#JetPropertiesAK8.NsubjettinessTau1 = cms.vstring('NjettinessAK8Puppi:tau1')
+	#JetPropertiesAK8.NsubjettinessTau2 = cms.vstring('NjettinessAK8Puppi:tau2')
+	#JetPropertiesAK8.NsubjettinessTau3 = cms.vstring('NjettinessAK8Puppi:tau3')
+	JetPropertiesAK8.bDiscriminatorCSV = cms.vstring('pfBoostedDoubleSecondaryVertexAK8BJetTags')
+        JetPropertiesAK8.subjets = cms.vstring('SoftDropPuppi')
+        JetPropertiesAK8.SJbDiscriminatorCSV = cms.vstring('SoftDropPuppi','pfCombinedInclusiveSecondaryVertexV2BJetTags')
         self.VectorDouble.extend([
             'JetProperties'+suff+':softDropMass(Jets'+suff+'_softDropMass)',
             'JetProperties'+suff+':bDiscriminatorCSV(Jets'+suff+'_doubleBDiscriminator)',
+            #'JetProperties'+suff+':NsubjettinessTau1(Jets'+suff+'_NsubjettinessTau1)',
+            #'JetProperties'+suff+':NsubjettinessTau2(Jets'+suff+'_NsubjettinessTau2)',
+            #'JetProperties'+suff+':NsubjettinessTau3(Jets'+suff+'_NsubjettinessTau3)',
         ])
+        #self.VectorInt.extend([
+        #    'JetProperties'+suff+':NumBhadrons(Jets'+suff+'_NumBhadrons)',
+        #    'JetProperties'+suff+':NumChadrons(Jets'+suff+'_NumChadrons)'
+        #])
         self.VectorVectorTLorentzVector.extend([
             'JetProperties'+suff+':subjets(Jets'+suff+'_subjets)',
         ])
@@ -400,87 +428,87 @@ def makeJetVarsAK8(self, process, JetTag, suff, storeProperties, SkipTag=cms.VIn
                     JetPropertiesAK8.origIndex = cms.vstring("jerOrigIndex")
                     self.VectorInt.extend(['JetProperties'+suff+':origIndex(Jets'+suff+'_origIndex)'])
             # nsubjettiness and num hadrons
-            JetPropertiesAK8.properties.extend([
-                "NsubjettinessTau1"     ,
-                "NsubjettinessTau2"     ,
-                "NsubjettinessTau3"     ,
-                "NumBhadrons"           ,
-                "NumChadrons"           ,
-            ])
-            JetPropertiesAK8.NsubjettinessTau1 = cms.vstring('NjettinessAK8Puppi:tau1')
-            JetPropertiesAK8.NsubjettinessTau2 = cms.vstring('NjettinessAK8Puppi:tau2')
-            JetPropertiesAK8.NsubjettinessTau3 = cms.vstring('NjettinessAK8Puppi:tau3')
-            self.VectorDouble.extend([
-                'JetProperties'+suff+':NsubjettinessTau1(Jets'+suff+'_NsubjettinessTau1)',
-                'JetProperties'+suff+':NsubjettinessTau2(Jets'+suff+'_NsubjettinessTau2)',
-                'JetProperties'+suff+':NsubjettinessTau3(Jets'+suff+'_NsubjettinessTau3)',
-            ])
-            self.VectorInt.extend([
-                'JetProperties'+suff+':NumBhadrons(Jets'+suff+'_NumBhadrons)',
-                'JetProperties'+suff+':NumChadrons(Jets'+suff+'_NumChadrons)'
-            ])
+            #JetPropertiesAK8.properties.extend([
+            #    "NsubjettinessTau1"     ,
+            #    "NsubjettinessTau2"     ,
+            #    "NsubjettinessTau3"     ,
+            #    "NumBhadrons"           ,
+            #    "NumChadrons"           ,
+            #])
+            #JetPropertiesAK8.NsubjettinessTau1 = cms.vstring('NjettinessAK8Puppi:tau1')
+            #JetPropertiesAK8.NsubjettinessTau2 = cms.vstring('NjettinessAK8Puppi:tau2')
+            #JetPropertiesAK8.NsubjettinessTau3 = cms.vstring('NjettinessAK8Puppi:tau3')
+            #self.VectorDouble.extend([
+            #    'JetProperties'+suff+':NsubjettinessTau1(Jets'+suff+'_NsubjettinessTau1)',
+            #    'JetProperties'+suff+':NsubjettinessTau2(Jets'+suff+'_NsubjettinessTau2)',
+            #    'JetProperties'+suff+':NsubjettinessTau3(Jets'+suff+'_NsubjettinessTau3)',
+            #])
+            #self.VectorInt.extend([
+            #    'JetProperties'+suff+':NumBhadrons(Jets'+suff+'_NumBhadrons)',
+            #    'JetProperties'+suff+':NumChadrons(Jets'+suff+'_NumChadrons)'
+            #])
 
             # fractions and multiplicities (use puppi versions for neutral mults)
-            JetPropertiesAK8.properties.extend([
-                'chargedHadronMultiplicity',
-                'neutralHadronPuppiMultiplicity',
-                'electronMultiplicity',
-                'photonPuppiMultiplicity',
-                'muonMultiplicity',
-                'chargedMultiplicity',
-                'neutralPuppiMultiplicity',
-                'chargedHadronEnergyFraction',
-                'neutralHadronEnergyFraction',
-                'chargedEmEnergyFraction',
-                'neutralEmEnergyFraction',
-                'electronEnergyFraction',
-                'photonEnergyFraction',
-                'muonEnergyFraction',
-                'hfEMEnergyFraction',
-                'hfHadronEnergyFraction',
-            ])
-            JetPropertiesAK8.neutralHadronPuppiMultiplicity = cms.vstring("puppiSpecificAK8:neutralHadronPuppiMultiplicity")
-            JetPropertiesAK8.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8:neutralPuppiMultiplicity")
-            JetPropertiesAK8.photonPuppiMultiplicity = cms.vstring("puppiSpecificAK8:photonPuppiMultiplicity")
-            self.VectorDouble.extend([
-                'JetProperties'+suff+':muonEnergyFraction(Jets'+suff+'_muonEnergyFraction)',
-                'JetProperties'+suff+':chargedHadronEnergyFraction(Jets'+suff+'_chargedHadronEnergyFraction)',
-                'JetProperties'+suff+':chargedEmEnergyFraction(Jets'+suff+'_chargedEmEnergyFraction)',
-                'JetProperties'+suff+':neutralEmEnergyFraction(Jets'+suff+'_neutralEmEnergyFraction)',
-                'JetProperties'+suff+':neutralHadronEnergyFraction(Jets'+suff+'_neutralHadronEnergyFraction)',
-                'JetProperties'+suff+':photonEnergyFraction(Jets'+suff+'_photonEnergyFraction)',
-                'JetProperties'+suff+':electronEnergyFraction(Jets'+suff+'_electronEnergyFraction)',
-                'JetProperties'+suff+':hfEMEnergyFraction(Jets'+suff+'_hfEMEnergyFraction)',
-                'JetProperties'+suff+':hfHadronEnergyFraction(Jets'+suff+'_hfHadronEnergyFraction)',
-                'JetProperties'+suff+':neutralHadronPuppiMultiplicity(Jets'+suff+'_neutralHadronMultiplicity)',
-                'JetProperties'+suff+':photonPuppiMultiplicity(Jets'+suff+'_photonMultiplicity)',
-                'JetProperties'+suff+':neutralPuppiMultiplicity(Jets'+suff+'_neutralMultiplicity)',
-            ])
-            self.VectorInt.extend([
-                'JetProperties'+suff+':chargedHadronMultiplicity(Jets'+suff+'_chargedHadronMultiplicity)',
-                'JetProperties'+suff+':electronMultiplicity(Jets'+suff+'_electronMultiplicity)',
-                'JetProperties'+suff+':muonMultiplicity(Jets'+suff+'_muonMultiplicity)',
-                'JetProperties'+suff+':chargedMultiplicity(Jets'+suff+'_chargedMultiplicity)',
-            ])
-
+            #JetPropertiesAK8.properties.extend([
+             #   'chargedHadronMultiplicity',
+             #   'neutralHadronPuppiMultiplicity',
+             #   'electronMultiplicity',
+             #   'photonPuppiMultiplicity',
+             #   'muonMultiplicity',
+             #   'chargedMultiplicity',
+             #   'neutralPuppiMultiplicity',
+             #   'chargedHadronEnergyFraction',
+             #   'neutralHadronEnergyFraction',
+             #   'chargedEmEnergyFraction',
+             #   'neutralEmEnergyFraction',
+             #   'electronEnergyFraction',
+             #   'photonEnergyFraction',
+             #   'muonEnergyFraction',
+             #   'hfEMEnergyFraction',
+             #   'hfHadronEnergyFraction',
+            #])
+            #JetPropertiesAK8.neutralHadronPuppiMultiplicity = cms.vstring("puppiSpecificAK8:neutralHadronPuppiMultiplicity")
+            #JetPropertiesAK8.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8:neutralPuppiMultiplicity")
+#            JetPropertiesAK8.photonPuppiMultiplicity = cms.vstring("puppiSpecificAK8:photonPuppiMultiplicity")
+#            self.VectorDouble.extend([
+#                'JetProperties'+suff+':muonEnergyFraction(Jets'+suff+'_muonEnergyFraction)',
+#                'JetProperties'+suff+':chargedHadronEnergyFraction(Jets'+suff+'_chargedHadronEnergyFraction)',
+#                'JetProperties'+suff+':chargedEmEnergyFraction(Jets'+suff+'_chargedEmEnergyFraction)',
+#                'JetProperties'+suff+':neutralEmEnergyFraction(Jets'+suff+'_neutralEmEnergyFraction)',
+#                'JetProperties'+suff+':neutralHadronEnergyFraction(Jets'+suff+'_neutralHadronEnergyFraction)',
+#                'JetProperties'+suff+':photonEnergyFraction(Jets'+suff+'_photonEnergyFraction)',
+#                'JetProperties'+suff+':electronEnergyFraction(Jets'+suff+'_electronEnergyFraction)',
+#                'JetProperties'+suff+':hfEMEnergyFraction(Jets'+suff+'_hfEMEnergyFraction)',
+#                'JetProperties'+suff+':hfHadronEnergyFraction(Jets'+suff+'_hfHadronEnergyFraction)',
+#                'JetProperties'+suff+':neutralHadronPuppiMultiplicity(Jets'+suff+'_neutralHadronMultiplicity)',
+#                'JetProperties'+suff+':photonPuppiMultiplicity(Jets'+suff+'_photonMultiplicity)',
+#                'JetProperties'+suff+':neutralPuppiMultiplicity(Jets'+suff+'_neutralMultiplicity)',
+#            ])
+#            self.VectorInt.extend([
+#                'JetProperties'+suff+':chargedHadronMultiplicity(Jets'+suff+'_chargedHadronMultiplicity)',
+#                'JetProperties'+suff+':electronMultiplicity(Jets'+suff+'_electronMultiplicity)',
+#                'JetProperties'+suff+':muonMultiplicity(Jets'+suff+'_muonMultiplicity)',
+#                'JetProperties'+suff+':chargedMultiplicity(Jets'+suff+'_chargedMultiplicity)',
+#            ])
+#
             # extra stuff for subjets
-            JetPropertiesAK8.properties.extend(["jecFactorSubjets", "SJptD", "SJaxismajor", "SJaxisminor", "SJmultiplicity"])
-            JetPropertiesAK8.jecFactorSubjets = cms.vstring('SoftDropPuppiUpdated')
-            JetPropertiesAK8.SJptD = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:ptD')
-            JetPropertiesAK8.SJaxismajor = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:axis1')
-            JetPropertiesAK8.SJaxisminor = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:axis2')
-            JetPropertiesAK8.SJmultiplicity = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:mult')
-            JetPropertiesAK8.SJbDiscriminatorCSV = cms.vstring('SoftDropPuppiUpdated','pfCombinedInclusiveSecondaryVertexV2BJetTags')
-            self.VectorVectorDouble.extend([
-                'JetProperties'+suff+':jecFactorSubjets(Jets'+suff+'_subjets_jecFactor)',
-                'JetProperties'+suff+':SJptD(Jets'+suff+'_subjets_ptD)',
-                'JetProperties'+suff+':SJaxismajor(Jets'+suff+'_subjets_axismajor)',
-                'JetProperties'+suff+':SJaxisminor(Jets'+suff+'_subjets_axisminor)',
-                'JetProperties'+suff+':SJbDiscriminatorCSV(Jets'+suff+'_subjets_bDiscriminatorCSV)',
-            ])
-            self.VectorVectorInt.extend([
-                'JetProperties'+suff+':SJmultiplicity(Jets'+suff+'_subjets_multiplicity)',
-            ])
+            #JetPropertiesAK8.properties.extend(["jecFactorSubjets", "SJptD", "SJaxismajor", "SJaxisminor", "SJmultiplicity"])
+            #JetPropertiesAK8.jecFactorSubjets = cms.vstring('SoftDropPuppiUpdated')
+            #JetPropertiesAK8.SJptD = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:ptD')
+            #JetPropertiesAK8.SJaxismajor = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:axis1')
+            #JetPropertiesAK8.SJaxisminor = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:axis2')
+            #JetPropertiesAK8.SJmultiplicity = cms.vstring('SoftDropPuppiUpdated','QGTaggerSubjets:mult')
+            #JetPropertiesAK8.SJbDiscriminatorCSV = cms.vstring('SoftDropPuppiUpdated','pfCombinedInclusiveSecondaryVertexV2BJetTags')
+            #self.VectorVectorDouble.extend([
+            #    'JetProperties'+suff+':jecFactorSubjets(Jets'+suff+'_subjets_jecFactor)',
+            #    'JetProperties'+suff+':SJptD(Jets'+suff+'_subjets_ptD)',
+            #    'JetProperties'+suff+':SJaxismajor(Jets'+suff+'_subjets_axismajor)',
+            #    'JetProperties'+suff+':SJaxisminor(Jets'+suff+'_subjets_axisminor)',
+            #    'JetProperties'+suff+':SJbDiscriminatorCSV(Jets'+suff+'_subjets_bDiscriminatorCSV)',
+            #])
+            #self.VectorVectorInt.extend([
+            #    'JetProperties'+suff+':SJmultiplicity(Jets'+suff+'_subjets_multiplicity)',
+            #])
 
         if self.semivisible and storeProperties>1:
             JetPropertiesAK8.properties.extend([
@@ -511,13 +539,13 @@ def makeJetVarsAK8(self, process, JetTag, suff, storeProperties, SkipTag=cms.VIn
                     'JetProperties'+suff+':constituents(Jets'+suff+'_constituents)',
                 ])
 
-        if self.debugsubjets and storeProperties>1:
-            JetPropertiesAK8.GenSubjetTag = cms.InputTag('slimmedGenJetsAK8SoftDropSubJets')
-            JetPropertiesAK8.properties.extend(["SJresponse"])
-            JetPropertiesAK8.SJresponse = cms.vstring('SoftDropPuppiUpdated')
-            self.VectorVectorDouble.extend([
-                'JetProperties'+suff+':SJresponse(Jets'+suff+'_subjets_response)',
-            ])
+        #if self.debugsubjets and storeProperties>1:
+        #    JetPropertiesAK8.GenSubjetTag = cms.InputTag('slimmedGenJetsAK8SoftDropSubJets')
+        #    JetPropertiesAK8.properties.extend(["SJresponse"])
+        #    JetPropertiesAK8.SJresponse = cms.vstring('SoftDropPuppiUpdated')
+        #    self.VectorVectorDouble.extend([
+        #        'JetProperties'+suff+':SJresponse(Jets'+suff+'_subjets_response)',
+        #    ])
 
         setattr(process,"JetProperties"+suff,JetPropertiesAK8)
 

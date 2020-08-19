@@ -1122,6 +1122,9 @@ class MCSampleValuesHelper():
                 XS_2018=3.322, XSSource_2018="GenXSecAnalyzer",
             ),
         },
+        "WZTo2L2Q" : {
+            "CrossSection" : XSValues(XS_13TeV=5.606),
+        },
         "ZGTo2NuG" : {
             "CrossSection" : XSValues(
                 XS_2016=28.04, XSSource_2016="XSDB (unknown)",

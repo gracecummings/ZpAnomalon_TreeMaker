@@ -220,7 +220,9 @@ PhotonIDisoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
 
   /// setup cluster tools
   noZS::EcalClusterLazyTools clusterTools_(iEvent, iSetup, ecalRecHitsInputTag_EB_Token_, ecalRecHitsInputTag_EE_Token_);
-  for(const auto& iPhoton : *photonCands){
+  for(const auto& photon : *photonCands){
+
+    pat::Photon iPhoton = photon;
 
     if( debug ) {
       edm::LogInfo("TreeMaker")
@@ -297,6 +299,13 @@ PhotonIDisoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
 	}
       }
     }
+
+    // correct photon pt
+    if(iPhoton.hasUserFloat("ecalEnergyPostCorr")){
+       auto corrP4  = iPhoton.p4() * iPhoton.userFloat("ecalEnergyPostCorr") / iPhoton.energy();
+       iPhoton.setP4(corrP4);
+    }
+
     // check if photon is a good loose photon
     if( passAcc && passIDLoose && passIsoLoose && iPhoton.pt() > pt_cut_){//pure photons
       goodPhotons->push_back( iPhoton );

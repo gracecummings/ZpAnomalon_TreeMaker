@@ -110,7 +110,8 @@ class Scenario:
             )
         elif sname == "Fall17":
             self.set_vars(
-                globaltag="94X_mc2017_realistic_v13",
+                #globaltag="94X_mc2017_realistic_v17",
+                globaltag="102X_mc2017_realistic_v7",
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
@@ -182,7 +183,8 @@ class Scenario:
             )
         elif sname == "2017ReReco31Mar":
             self.set_vars(
-                globaltag="94X_dataRun2_v6",
+                #globaltag="94X_dataRun2_v17",#does not work in this release
+                globaltag ="102X_dataRun2_v12",
                 tagname="PAT",
                 hlttagname="HLT",
                 jsonfile=self.absdatapath+"/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt",
@@ -301,6 +303,36 @@ class Scenario:
                 residual=True,
                 era="Run2_2018",
                 localera="TM2018",
+            )
+        elif sname == "Hirosky2017_SigSamples":
+            self.set_vars(
+                #globaltag="94X_mc2017_realistic_v3",
+                globaltag="102X_mc2017_realistic_v7",
+                tagname="PAT",
+                hlttagname="HLT",
+                geninfo=True,
+                signal=True,
+                jecfile="data/jec/Fall17_17Nov2017_V32_102X_MC",#do not know if right
+                jerfile="data/jer/Fall17_V3_94X_MC",#do not know if right
+                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",#do not know if right
+                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                era="Run2_2017",
+                localera="TM2017",
+            )
+        elif sname == "Hirosky2017_Bkg":
+            self.set_vars(
+                globaltag="102X_mc2017_realistic_v7",
+                #globaltag="94X_mc2017_realistic_v14-v1",
+                tagname="PAT",
+                hlttagname="HLT",
+                geninfo=True,
+                signal=True,
+                jecfile="data/jec/Fall17_17Nov2017_V32_102X_MC",#do not know if right
+                jerfile="data/jer/Fall17_V3_94X_MC",#do not know if right
+                pufile="TreeMaker/Production/test/data/PileupHistograms_0328_63mb_pm5.root",#do not know if right
+                wrongpufile="TreeMaker/Production/test/data/Fall17PU.root",
+                era="Run2_2017",
+                localera="TM2017",
             )
         else: # if no recognized scenario, cannot go forward
             raise ValueError('Unknown scenario name: '+sname)
