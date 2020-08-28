@@ -14,8 +14,8 @@ def doLostLeptonBkg(self,process,METTag):
             doTrkIsoVeto        = False,
             vertexInputTag      = cms.InputTag("goodVertices"),
             pfCandidatesTag     = cms.InputTag("packedPFCandidates"),
-            ElectronTag         = cms.InputTag("LeptonsNew:IsoTrkVetoElectron"),
-            MuonTag             = cms.InputTag("LeptonsNew:IsoTrkVetoMuon"),
+            #ElectronTag         = cms.InputTag("LeptonsNew:IsoTrkVetoElectron"),
+            #MuonTag             = cms.InputTag("LeptonsNew:IsoTrkVetoMuon"),
             dR_ConeSize         = cms.double(0.3),
             dz_CutValue         = cms.double(0.1),
             minPt_PFCandidate   = cms.double(5.0),
@@ -29,8 +29,8 @@ def doLostLeptonBkg(self,process,METTag):
             doTrkIsoVeto        = False,
             vertexInputTag      = cms.InputTag("goodVertices"),
             pfCandidatesTag     = cms.InputTag("packedPFCandidates"),
-            ElectronTag         = cms.InputTag("LeptonsNew:IsoTrkVetoElectron"),
-            MuonTag             = cms.InputTag("LeptonsNew:IsoTrkVetoMuon"),
+            #ElectronTag         = cms.InputTag("LeptonsNew:IsoTrkVetoElectron"),
+            #MuonTag             = cms.InputTag("LeptonsNew:IsoTrkVetoMuon"),
             dR_ConeSize         = cms.double(0.3),
             dz_CutValue         = cms.double(0.1),
             minPt_PFCandidate   = cms.double(5.0),
@@ -44,8 +44,8 @@ def doLostLeptonBkg(self,process,METTag):
             doTrkIsoVeto        = False,
             vertexInputTag      = cms.InputTag("goodVertices"),
             pfCandidatesTag     = cms.InputTag("packedPFCandidates"),
-            ElectronTag         = cms.InputTag("LeptonsNew:IsoTrkVetoElectron"),
-            MuonTag             = cms.InputTag("LeptonsNew:IsoTrkVetoMuon"),
+            #ElectronTag         = cms.InputTag("LeptonsNew:IsoTrkVetoElectron"),
+            #MuonTag             = cms.InputTag("LeptonsNew:IsoTrkVetoMuon"),
             dR_ConeSize         = cms.double(0.3),
             dz_CutValue         = cms.double(0.1),
             minPt_PFCandidate   = cms.double(10.0),
@@ -59,7 +59,7 @@ def doLostLeptonBkg(self,process,METTag):
         self.VectorBool.extend(['LeptonsNew:Id'+type+'MediumID('+type+'s_mediumID)'])
         self.VectorBool.extend(['LeptonsNew:Id'+type+'TightID('+type+'s_tightID)'])
         self.VectorDouble.extend(['LeptonsNew:Id'+type+'MTW('+type+'s_MTW)'])
-        self.VectorDouble.extend(['LeptonsNew:Id'+type+'Iso('+type+'s_iso)'])
+        #self.VectorDouble.extend(['LeptonsNew:Id'+type+'Iso('+type+'s_iso)'])
 
     for type in ['Electron','Muon','Pion']:
         self.VectorTLorentzVector.extend(['TAP'+type+'Tracks:pfcands(TAP'+type+'Tracks)'])
@@ -69,12 +69,12 @@ def doLostLeptonBkg(self,process,METTag):
         self.VectorDouble.extend(['TAP'+type+'Tracks:pfcandsdxypv(TAP'+type+'Tracks_dxypv)'])
         self.VectorBool.extend(['TAP'+type+'Tracks:pfcandsleptonmatch(TAP'+type+'Tracks_leptonMatch)'])
 
-    if self.debugtap:
-        for type in ['Electron','Muon','Pion']:
-            self.VectorDouble.extend(['TAP'+type+'Tracks:pfcandspfreliso03all(TAP'+type+'Tracks_pfRelIso03all)'])
-            self.VectorDouble.extend(['TAP'+type+'Tracks:pfcandsdzpv(TAP'+type+'Tracks_dzpv)'])
-            self.VectorInt.extend(['TAP'+type+'Tracks:pfcandschg(TAP'+type+'Tracks_charge)'])
-            self.VectorInt.extend(['TAP'+type+'Tracks:pfcandsid(TAP'+type+'Tracks_id)'])
+    #if self.debugtap:
+    #    for type in ['Electron','Muon','Pion']:
+    #        self.VectorDouble.extend(['TAP'+type+'Tracks:pfcandspfreliso03all(TAP'+type+'Tracks_pfRelIso03all)'])
+    #        self.VectorDouble.extend(['TAP'+type+'Tracks:pfcandsdzpv(TAP'+type+'Tracks_dzpv)'])
+    #        self.VectorInt.extend(['TAP'+type+'Tracks:pfcandschg(TAP'+type+'Tracks_charge)'])
+    #        self.VectorInt.extend(['TAP'+type+'Tracks:pfcandsid(TAP'+type+'Tracks_id)'])
     if self.geninfo: # gen information on leptons
         self.VectorRecoCand.extend(['GenLeptons:Muon(GenMuons)','GenLeptons:Electron(GenElectrons)','GenLeptons:Tau(GenTaus)'])
         self.VectorBool.extend(['GenLeptons:TauHadronic(GenTaus_had)'])
