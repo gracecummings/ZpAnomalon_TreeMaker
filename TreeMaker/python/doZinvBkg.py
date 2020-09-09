@@ -17,7 +17,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     jetToolbox(process, 'ak8', 'dummySeqAK8', 'noOutput',
                PUMethod='Puppi', JETCorrPayload='AK8PFPuppi', JETCorrLevels=JETCorrLevels,
                Cut='pt > 170.0 && abs(rapidity()) < 2.4',
-               miniAOD=True, #runOnMC=runOnMC,
+               miniAOD=True, runOnMC=self.geninfo,
                postFix=reclusterAK8JetPostFix,
                newPFCollection = True,
                nameNewPFCollection = cleanedCandidates.value(),
