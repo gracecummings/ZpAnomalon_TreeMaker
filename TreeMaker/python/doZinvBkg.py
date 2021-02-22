@@ -317,12 +317,15 @@ def doZinvBkg(self,process):
 
     from TreeMaker.Utils.zproducer_cfi import ZProducer
     process.makeTheZs = ZProducer.clone(
-        ElectronTag = cms.InputTag('LeptonsNew:IdIsoElectron'),
+        ElectronTag = cms.InputTag('LeptonsNew:IdElectron'),
         MuonTag     = cms.InputTag('LeptonsNew:IdMuon')
     )
     self.VectorRecoCand.append("makeTheZs:ZCandidates")
+    self.VectorRecoCand.append("makeTheZs:ZCandidatesMuMu")
+    self.VectorRecoCand.append("makeTheZs:ZCandidatesEE")
     self.VectorRecoCand.append("makeTheZs:SelectedMuons")
     self.VectorRecoCand.append("makeTheZs:SelectedElectrons")
+    
 
     ###
     # do the new cleaning

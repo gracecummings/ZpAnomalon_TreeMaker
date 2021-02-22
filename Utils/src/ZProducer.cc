@@ -31,14 +31,18 @@ ZProducer::ZProducer(const edm::ParameterSet& iConfig)
    MuonTok_ = consumes<std::vector<pat::Muon>>(MuonTag_);
    
    produces<pat::CompositeCandidateCollection>("ZCandidates");
+   produces<pat::CompositeCandidateCollection>("ZCandidatesEE");
+   produces<pat::CompositeCandidateCollection>("ZCandidatesMuMu");
    produces<std::vector<pat::Muon>>("SelectedMuons");
    produces<std::vector<pat::Electron>>("SelectedElectrons");
 }
 
 void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-   auto ZCandidates     = std::make_unique<pat::CompositeCandidateCollection>();
-   auto SelectedMuons   = std::make_unique<std::vector<pat::Muon>>();
+   auto ZCandidates       = std::make_unique<pat::CompositeCandidateCollection>();
+   auto ZCandidatesMuMu  = std::make_unique<pat::CompositeCandidateCollection>();
+   auto ZCandidatesEE = std::make_unique<pat::CompositeCandidateCollection>();
+   auto SelectedMuons     = std::make_unique<std::vector<pat::Muon>>();
    auto SelectedElectrons   = std::make_unique<std::vector<pat::Electron>>();
 
    bool findZ = false;
@@ -90,6 +94,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    std::list<pat::Muon>::iterator mu1it = leadMuons.begin();
    std::list<pat::Muon>::iterator mu2it = subMuons.begin();
    ZCandidates->push_back(theZ);
+   ZCandidatesMuMu->push_back(theZ);
    std::advance(mu1it,zIdx);
    std::advance(mu2it,zIdx);
    SelectedMuons->push_back(*mu1it);
@@ -141,6 +146,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    std::list<pat::Electron>::iterator e1it = leadElectrons.begin();
    std::list<pat::Electron>::iterator e2it = subElectrons.begin();
    ZCandidates->push_back(theZ);
+   ZCandidatesEE->push_back(theZ);
    std::advance(e1it,zIdx);
    std::advance(e2it,zIdx);
    SelectedElectrons->push_back(*e1it);
@@ -149,6 +155,8 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 
    // add the Z candidates to the event
    iEvent.put(std::move(ZCandidates), std::string("ZCandidates"));
+   iEvent.put(std::move(ZCandidatesMuMu), std::string("ZCandidatesMuMu"));
+   iEvent.put(std::move(ZCandidatesEE), std::string("ZCandidatesEE"));
    iEvent.put(std::move(SelectedMuons), std::string("SelectedMuons"));
    iEvent.put(std::move(SelectedElectrons), std::string("SelectedElectrons"));
 
