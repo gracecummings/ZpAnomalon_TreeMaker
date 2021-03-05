@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
-source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = s\
-ecFiles)
+source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
         '/store/user/jhakala/ZpAnomalonHZ_UFO-Zp3000-ND500-NS1_v2/ZpAnomalonHZ_UFO-Zp3000-ND500-NS1_miniAOD_0.root',
         '/store/user/jhakala/ZpAnomalonHZ_UFO-Zp3000-ND500-NS1_v2/ZpAnomalonHZ_UFO-Zp3000-ND500-NS1_miniAOD_1.root',
