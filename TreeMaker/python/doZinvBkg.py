@@ -323,6 +323,7 @@ def doZinvBkg(self,process):
     self.VectorRecoCand.append("makeTheZs:ZCandidates")
     self.VectorRecoCand.append("makeTheZs:ZCandidatesMuMu")
     self.VectorRecoCand.append("makeTheZs:ZCandidatesEE")
+    self.VectorRecoCand.append("makeTheZs:ZCandidatesEU")
     self.VectorRecoCand.append("makeTheZs:SelectedMuons")
     self.VectorRecoCand.append("makeTheZs:SelectedElectrons")
     
