@@ -164,16 +164,16 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    findZ = false;
 
 
-   // Zeu selection (electron channel)
+   // Zeu selection (electron/Muon channel)
    pat::Electron ee1;
    pat::Muon emu1;
    pat::Electron ee2;
    pat::Muon emu2;
 
    for (std::vector<pat::Electron>::const_iterator iL1 = electrons->begin(); iL1 != electrons->end(); ++iL1) {
-       if (iL1->pt() > 120.0 && iL1->eta() < 2.5) { // pat collection is pT-ordered
+       if (iL1->pt() > 60.0 && iL1->eta() < 2.4) { // pat collection is pT-ordered
           for (const auto & muon : *muons) {
-	     if (muon.pt() > 35.0 && muon.eta() < 2.5){
+	     if (muon.pt() > 20.0 && muon.eta() < 2.4){
 	       if (iL1->charge()*muon.charge() > 0) continue;
                ee1 = *(iL1->clone());
                emu1 = muon;
@@ -191,9 +191,9 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
        }
    }
    for (std::vector<pat::Muon>::const_iterator iL2 = muons->begin(); iL2 != muons->end(); ++iL2) {
-       if (iL2->pt() > 120.0 && iL2->eta() < 2.5) { // pat collection is pT-ordered
+       if (iL2->pt() > 60.0 && iL2->eta() < 2.4) { // pat collection is pT-ordered
           for (const auto & electron : *electrons) {
-	    if (electron.pt() > 35.0 && electron.eta() < 2.5){
+	    if (electron.pt() > 20.0 && electron.eta() < 2.4){
 	      if (iL2->charge()*electron.charge() > 0) continue;
 	      emu2 = *(iL2->clone());
 	      ee2 = electron;
@@ -211,18 +211,17 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    }
    for (zit = aZlist.begin(); zit != aZlist.end(); ++zit) {
      double massZdiff = std::abs(91.18 - zit->mass());
-     std::cout<< " Step3 Zmass: " << zit->mass() << std::endl;
+     //std::cout<< " Step3 Zmass: " << zit->mass() << std::endl;
      if (massZdiff < baseMassZdiff) {
        baseMassZdiff = massZdiff;
        theZ.setP4(zit->p4());
-       std::cout<< " Step4 theZ: " << theZ.mass() << std::endl;
+       //std::cout<< " Step4 theZ: " << theZ.mass() << std::endl;
        zIdx = std::distance(aZlist.begin(),zit);//THIS NEEDS ATTENTION
      }
    }
    if(findZ){
      ZCandidates->push_back(theZ);
      ZCandidatesEU->push_back(theZ);
-     std::cout<< " Step7 gondogol2: "<< std::endl;
      if(!leadElectrons.empty()){
        std::list<pat::Electron>::iterator e1it = leadElectrons.begin();
        std::advance(e1it,zIdx);
