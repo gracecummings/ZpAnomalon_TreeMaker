@@ -33,6 +33,7 @@ ZProducer::ZProducer(const edm::ParameterSet& iConfig)
    produces<pat::CompositeCandidateCollection>("ZCandidates");
    produces<pat::CompositeCandidateCollection>("ZCandidatesEE");
    produces<pat::CompositeCandidateCollection>("ZCandidatesMuMu");
+   produces<pat::CompositeCandidateCollection>("ZCandidatesEU");
    produces<std::vector<pat::Muon>>("SelectedMuons");
    produces<std::vector<pat::Electron>>("SelectedElectrons");
 }
@@ -42,6 +43,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    auto ZCandidates       = std::make_unique<pat::CompositeCandidateCollection>();
    auto ZCandidatesMuMu  = std::make_unique<pat::CompositeCandidateCollection>();
    auto ZCandidatesEE = std::make_unique<pat::CompositeCandidateCollection>();
+   auto ZCandidatesEU = std::make_unique<pat::CompositeCandidateCollection>();
    auto SelectedMuons     = std::make_unique<std::vector<pat::Muon>>();
    auto SelectedElectrons   = std::make_unique<std::vector<pat::Electron>>();
 
@@ -153,10 +155,99 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    SelectedElectrons->push_back(*e2it);
    }
 
+   //reset
+   aZlist.clear(); 
+   leadElectrons.clear();
+   subElectrons.clear();
+   zIdx = 0;
+   baseMassZdiff = 99999;
+   findZ = false;
+
+
+   // Zeu selection (electron/Muon channel)
+   pat::Electron ee1;
+   pat::Muon emu1;
+   pat::Electron ee2;
+   pat::Muon emu2;
+
+   for (std::vector<pat::Electron>::const_iterator iL1 = electrons->begin(); iL1 != electrons->end(); ++iL1) {
+       if (iL1->pt() > 60.0 && iL1->eta() < 2.4) { // pat collection is pT-ordered
+          for (const auto & muon : *muons) {
+	     if (muon.pt() > 20.0 && muon.eta() < 2.4){
+	       if (iL1->charge()*muon.charge() > 0) continue;
+               ee1 = *(iL1->clone());
+               emu1 = muon;
+               aZ.setP4(ee1.p4()+emu1.p4());
+               if ( aZ.mass() <= 110 && aZ.mass() >= 70){
+		 aZlist.push_back(aZ);
+		 //std::cout<< " Got e leading and pt: " << iL1->pt() << " Muon pt: " << muon.pt() << std::endl;
+		 leadElectrons.push_back(ee1);
+		 subMuons.push_back(emu1);
+		 findZ = true;
+               }
+	       
+	     }
+          }
+       }
+   }
+   for (std::vector<pat::Muon>::const_iterator iL2 = muons->begin(); iL2 != muons->end(); ++iL2) {
+       if (iL2->pt() > 60.0 && iL2->eta() < 2.4) { // pat collection is pT-ordered
+          for (const auto & electron : *electrons) {
+	    if (electron.pt() > 20.0 && electron.eta() < 2.4){
+	      if (iL2->charge()*electron.charge() > 0) continue;
+	      emu2 = *(iL2->clone());
+	      ee2 = electron;
+	      aZ.setP4(emu2.p4()+ee2.p4());
+	      if ((aZ.mass() <=110) && (aZ.mass()) >= 70){
+		aZlist.push_back(aZ);
+		//std::cout<< " Got mu leading and pt: " << iL2->pt() << " e pt: " << electron.pt() << std::endl;
+		leadMuons.push_back(emu2);
+		subElectrons.push_back(ee2);
+		findZ = true;
+	      }
+	    }
+	  }
+       }
+   }
+   for (zit = aZlist.begin(); zit != aZlist.end(); ++zit) {
+     double massZdiff = std::abs(91.18 - zit->mass());
+     //std::cout<< " Step3 Zmass: " << zit->mass() << std::endl;
+     if (massZdiff < baseMassZdiff) {
+       baseMassZdiff = massZdiff;
+       theZ.setP4(zit->p4());
+       //std::cout<< " Step4 theZ: " << theZ.mass() << std::endl;
+       zIdx = std::distance(aZlist.begin(),zit);//THIS NEEDS ATTENTION
+     }
+   }
+   if(findZ){
+     ZCandidates->push_back(theZ);
+     ZCandidatesEU->push_back(theZ);
+     if(!leadElectrons.empty()){
+       std::list<pat::Electron>::iterator e1it = leadElectrons.begin();
+       std::advance(e1it,zIdx);
+       SelectedElectrons->push_back(*e1it);
+     }
+     if (!subElectrons.empty()){
+       std::list<pat::Electron>::iterator e2it = subElectrons.begin();
+       std::advance(e2it,zIdx);
+       SelectedElectrons->push_back(*e2it);
+     }
+     if(!leadMuons.empty()){
+       std::list<pat::Muon>::iterator mu1it = leadMuons.begin();
+       std::advance(mu1it,zIdx);
+       SelectedMuons->push_back(*mu1it);
+     }
+     if(!subMuons.empty()){
+       std::list<pat::Muon>::iterator mu2it = subMuons.begin();
+       std::advance(mu2it,zIdx);
+       SelectedMuons->push_back(*mu2it);
+     }
+   }
    // add the Z candidates to the event
    iEvent.put(std::move(ZCandidates), std::string("ZCandidates"));
    iEvent.put(std::move(ZCandidatesMuMu), std::string("ZCandidatesMuMu"));
    iEvent.put(std::move(ZCandidatesEE), std::string("ZCandidatesEE"));
+   iEvent.put(std::move(ZCandidatesEU), std::string("ZCandidatesEU"));
    iEvent.put(std::move(SelectedMuons), std::string("SelectedMuons"));
    iEvent.put(std::move(SelectedElectrons), std::string("SelectedElectrons"));
 
