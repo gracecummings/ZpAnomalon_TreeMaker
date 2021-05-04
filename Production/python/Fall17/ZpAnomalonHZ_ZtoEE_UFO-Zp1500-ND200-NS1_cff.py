@@ -1,0 +1,46 @@
+import FWCore.ParameterSet.Config as cms
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+readFiles = cms.untracked.vstring()
+secFiles = cms.untracked.vstring()
+source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+readFiles.extend( [
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_0.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_1.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_10.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_11.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_12.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_14.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_16.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_18.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_19.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_2.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_20.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_21.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_22.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_23.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_24.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_25.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_26.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_27.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_28.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_3.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_30.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_33.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_34.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_35.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_37.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_38.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_39.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_4.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_40.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_41.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_42.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_45.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_47.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_48.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_49.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_5.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_6.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_8.root',
+'/store/group/lpcboostres/ZpAnomalonHZ_ZtoEE_Zp1500-ND200-NS1/ZpAnomalonHZ_ZtoEE_UFO-Zp1500-ND200-NS1_miniAOD_9.root'
+])
