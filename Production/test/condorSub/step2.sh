@@ -100,6 +100,8 @@ elif [[ "${OUTDIR}" == *"gsiftp://"* ]]; then
 	export CMDSTR="gfal-copy"
 	export GFLAG="-g"
 fi
+echo "Deleting jetToolBox file"
+rm jettoolbox.root
 echo "$CMDSTR output for condor"
 for FILE in *.root; do
 	FILE_DST=${FILE}
