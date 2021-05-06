@@ -57,6 +57,10 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    int zIdx = 0;
    double baseMassZdiff = 99999;
 
+   // Electron and Muon
+   pat::CompositeCandidate Zlesmu;
+   pat::CompositeCandidate Zlmuse; 
+
    // select Zmumu
    edm::Handle<std::vector<pat::Muon>> muonHandle;
    iEvent.getByToken(MuonTok_, muonHandle);
@@ -174,6 +178,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
        if (iL1->pt() > 60.0 && iL1->eta() < 2.4) { // pat collection is pT-ordered
           for (const auto & muon : *muons) {
 	     if (muon.pt() > 20.0 && muon.eta() < 2.4){
+	       if (muon.pt() > iL1->pt()) continue;
 	       if (iL1->charge()*muon.charge() > 0) continue;
                ee1 = *(iL1->clone());
                emu1 = muon;
@@ -194,6 +199,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
        if (iL2->pt() > 60.0 && iL2->eta() < 2.4) { // pat collection is pT-ordered
           for (const auto & electron : *electrons) {
 	    if (electron.pt() > 20.0 && electron.eta() < 2.4){
+	      if (electron.pt() > iL2->pt()) continue;
 	      if (iL2->charge()*electron.charge() > 0) continue;
 	      emu2 = *(iL2->clone());
 	      ee2 = electron;
@@ -211,36 +217,55 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    }
    for (zit = aZlist.begin(); zit != aZlist.end(); ++zit) {
      double massZdiff = std::abs(91.18 - zit->mass());
-     //std::cout<< " Step3 Zmass: " << zit->mass() << std::endl;
      if (massZdiff < baseMassZdiff) {
        baseMassZdiff = massZdiff;
        theZ.setP4(zit->p4());
-       //std::cout<< " Step4 theZ: " << theZ.mass() << std::endl;
        zIdx = std::distance(aZlist.begin(),zit);//THIS NEEDS ATTENTION
      }
    }
    if(findZ){
      ZCandidates->push_back(theZ);
      ZCandidatesEU->push_back(theZ);
-     if(!leadElectrons.empty()){
-       std::list<pat::Electron>::iterator e1it = leadElectrons.begin();
-       std::advance(e1it,zIdx);
-       SelectedElectrons->push_back(*e1it);
-     }
-     if (!subElectrons.empty()){
-       std::list<pat::Electron>::iterator e2it = subElectrons.begin();
-       std::advance(e2it,zIdx);
-       SelectedElectrons->push_back(*e2it);
-     }
-     if(!leadMuons.empty()){
-       std::list<pat::Muon>::iterator mu1it = leadMuons.begin();
-       std::advance(mu1it,zIdx);
-       SelectedMuons->push_back(*mu1it);
-     }
-     if(!subMuons.empty()){
-       std::list<pat::Muon>::iterator mu2it = subMuons.begin();
-       std::advance(mu2it,zIdx);
-       SelectedMuons->push_back(*mu2it);
+     if (!leadElectrons.empty() && !subElectrons.empty() && !leadMuons.empty() && !subMuons.empty()){
+        std::list<pat::Electron>::iterator le = leadElectrons.begin();
+	std::list<pat::Electron>::iterator se = subElectrons.begin();
+	std::list<pat::Muon>::iterator lmu = leadMuons.begin();
+	std::list<pat::Muon>::iterator smu = subMuons.begin();
+	Zlesmu.setP4(le->p4()+smu->p4());
+	Zlmuse.setP4(lmu->p4()+se->p4());
+	if (theZ.mass() == Zlesmu.mass()){
+	  std::advance(le,zIdx);
+	  std::advance(smu,zIdx);
+	  SelectedElectrons->push_back(*le);
+	  SelectedMuons->push_back(*smu);
+	}
+	if (theZ.mass() == Zlmuse.mass()){
+	  std::advance(lmu,zIdx);
+	  std::advance(se,zIdx);
+	  SelectedElectrons->push_back(*se);
+	  SelectedMuons->push_back(*lmu);
+	}
+     } else {
+       if(!leadElectrons.empty()){
+	 std::list<pat::Electron>::iterator e1it = leadElectrons.begin();
+	 std::advance(e1it,zIdx);
+	 SelectedElectrons->push_back(*e1it);
+       }
+       if (!subElectrons.empty()){
+	 std::list<pat::Electron>::iterator e2it = subElectrons.begin();
+	 std::advance(e2it,zIdx);
+	 SelectedElectrons->push_back(*e2it);
+       }
+       if(!leadMuons.empty()){
+	 std::list<pat::Muon>::iterator mu1it = leadMuons.begin();
+	 std::advance(mu1it,zIdx);
+	 SelectedMuons->push_back(*mu1it);
+       }
+       if(!subMuons.empty()){
+	 std::list<pat::Muon>::iterator mu2it = subMuons.begin();
+	 std::advance(mu2it,zIdx);
+	 SelectedMuons->push_back(*mu2it);
+       }
      }
    }
    // add the Z candidates to the event
