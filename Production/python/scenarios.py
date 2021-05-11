@@ -111,7 +111,7 @@ class Scenario:
         elif sname == "Fall17":
             self.set_vars(
                 #globaltag="94X_mc2017_realistic_v17",
-                globaltag="102X_mc2017_realistic_v8",#updated from 7
+                globaltag="102X_mc2017_realistic_v8",
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
@@ -284,7 +284,7 @@ class Scenario:
             )
         elif sname == "2018PromptReco":
             self.set_vars(
-                globaltag="102X_dataRun2_Prompt_v11",
+                globaltag="102X_dataRun2_Prompt_v16",#update gec 29-04-21
                 tagname="RECO",
                 hlttagname="HLT",
                 jsonfile=self.absdatapath+"/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt",
