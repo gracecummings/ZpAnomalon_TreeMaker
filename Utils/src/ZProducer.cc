@@ -217,6 +217,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    }
    for (zit = aZlist.begin(); zit != aZlist.end(); ++zit) {
      double massZdiff = std::abs(91.18 - zit->mass());
+     //std::cout<< " Step3 Zmass: " << zit->mass() << std::endl;
      if (massZdiff < baseMassZdiff) {
        baseMassZdiff = massZdiff;
        theZ.setP4(zit->p4());
@@ -226,6 +227,7 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
    if(findZ){
      ZCandidates->push_back(theZ);
      ZCandidatesEU->push_back(theZ);
+     
      if (!leadElectrons.empty() && !subElectrons.empty() && !leadMuons.empty() && !subMuons.empty()){
         std::list<pat::Electron>::iterator le = leadElectrons.begin();
 	std::list<pat::Electron>::iterator se = subElectrons.begin();
@@ -233,15 +235,12 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 	std::list<pat::Muon>::iterator smu = subMuons.begin();
 	Zlesmu.setP4(le->p4()+smu->p4());
 	Zlmuse.setP4(lmu->p4()+se->p4());
+	
 	if (theZ.mass() == Zlesmu.mass()){
-	  std::advance(le,zIdx);
-	  std::advance(smu,zIdx);
 	  SelectedElectrons->push_back(*le);
 	  SelectedMuons->push_back(*smu);
 	}
 	if (theZ.mass() == Zlmuse.mass()){
-	  std::advance(lmu,zIdx);
-	  std::advance(se,zIdx);
 	  SelectedElectrons->push_back(*se);
 	  SelectedMuons->push_back(*lmu);
 	}
