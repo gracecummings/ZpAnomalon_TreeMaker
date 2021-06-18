@@ -11,6 +11,7 @@
 #Step 4: Run the script and resubmit your jobs
 #      example commant: python resubFrom_condor_q_Output.py -f holds.txt -e eosdirname4output
 #This script only works on the lpc condor batch system
+#LPC DESIRED SITES LIST HAS NOT BEEN TESTED, COMMENTED OUT
 #This coult be combined with options from exampleHoldDecisions.py if some jobs just should
 #just be released, and others removed and resubmitted
 
@@ -54,6 +55,8 @@ if __name__=='__main__':
         jdl.write("on_exit_remove = (ExitBySignal == False) && (ExitCode == 0)\n")
         jdl.write("on_exit_hold = ( (ExitBySignal == True) || (ExitCode != 0) )\n")
         jdl.write("\n")
+        #jdl.write('+DESIRED_Sites="T3_US_Baylor,T2_US_Caltech,T3_US_Colorado,T3_US_Cornell,T3_US_FIT,T1_US_FNAL,T3_US_FNALLPC,T3_US_Omaha,T3_US_JHU,T3_US_Kansas,T2_US_MIT,T3_US_NotreDame,T2_US_Nebraska,T3_US_NU,T3_US_OSU,T3_US_Princeton_ICSE,T2_US_Purdue,T3_US_Rice,T3_US_Rutgers,T3_US_MIT,T3_US_NERSC,T3_US_SDSC,T3_US_FIU,T3_US_FSU,T3_US_OSG,T3_US_TAMU,T3_US_TTU,T3_US_UCD,T3_US_UCSB,T2_US_UCSD,T3_US_UMD,T3_US_UMiss,T2_US_Vanderbilt,T2_US_Wisconsin"')
+        #jdl.write("\n")
         jdl.write("Queue 1\n")#Not sure about this one
         jdl.close()
         os.system("condor_submit {0}".format(jdlName))
