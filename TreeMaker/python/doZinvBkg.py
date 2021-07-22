@@ -341,7 +341,7 @@ def doZinvBkg(self,process):
         # if there are no leptons in the event, just remove high-pt photons (GJet)
     # otherwise, just remove leptons (DY)
     process.selectedXons = cms.EDProducer("CandPtrPrefer",
-        first = cms.InputTag("selectedZleptons"), second = cms.InputTag("goodPhotons","highpt")
+        first = cms.InputTag("selectedZleptons"),second = cms.InputTag("goodPhotons","highpt")
     )
     
     # do the removal
@@ -351,7 +351,7 @@ def doZinvBkg(self,process):
     # the corresponding non-clean branches should be used instead for those events
     process.cleanedCandidates =  cms.EDProducer("PackedCandPtrProjector",
         src = cms.InputTag("packedPFCandidates"), veto = cms.InputTag("selectedXons"),
-        putEmpty = cms.bool(False)
+                                                putEmpty = cms.bool(True)
     )
     
     # make reclustered jets
