@@ -63,15 +63,16 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     JetAK8CleanTag=cms.InputTag("selectedUpdatedPatJetsAK8"+reclusterAK8JetPostFix+"WithPuppiDaughters")
     #JetAK8CleanTag=cms.InputTag("updatedPatJets"+jecCheckString+"AK8"+reclusterAK8JetPostFix+"WithPuppiDaughters")#This one does not have deeptaggers!!
 
-    if doJERsmearing:
-        # do central smearing and replace jet tag
-        process, _, JetAK8CleanTag = JetDepot(process,
-            JetTag=JetAK8CleanTag,
-            jecUncDir=0,
-            doSmear=doJERsmearing,
-            jerUncDir=0,
-            storeJer=2,
-        )
+    #Redundant
+    #if doJERsmearing:
+    #    # do central smearing and replace jet tag
+    #    process, _, JetAK8CleanTag = JetDepot(process,
+    #        JetTag=JetAK8CleanTag,
+    #        jecUncDir=0,
+    #        doSmear=doJERsmearing,
+    #        jerUncDir=0,
+    #        storeJer=2,
+    #    )
 
     # get puppi-specific multiplicities
     from PhysicsTools.PatAlgos.patPuppiJetSpecificProducer_cfi import patPuppiJetSpecificProducer
@@ -119,7 +120,7 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     elif not self.geninfo:
         # get JEC unc for data
         process, JetAK8CleanJECTmp, _ = JetDepot(process,
-            JetTag=JetAK8Clean,
+            JetTag=JetAK8CleanTag,
             jecUncDir=0,
             storeJec=True, # get JEC unc value (in intermediate tag Tmp)
             doSmear=False,
@@ -128,15 +129,15 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
         # append unc to central collection
         process, JetAK8Clean = addJetInfo(process, JetAK8Clean, [JetAK8CleanJECTmp.value()], [])
 
-    #if self.geninfo:
+    if self.geninfo:
         # finally, do central smearing and replace jet tag
-    #    process, _, JetAK8Clean = JetDepot(process,
-    #        JetTag=JetAK8Clean,
-    #        jecUncDir=0,
-    #        doSmear=True,
-    #        jerUncDir=0,
-    #        storeJer=2, # get central jet smearing factor
-    #    )
+        process, _, JetAK8CleanTag = JetDepot(process,
+            JetTag=JetAK8CleanTag,
+            jecUncDir=0,
+            doSmear=True,
+            jerUncDir=0,
+            storeJer=2, # get central jet smearing factor
+        )
 
     if self.systematics:
         process.JetPropertiesAK8Clean.properties.extend(["jecUnc"])
@@ -147,14 +148,14 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
 
 
 
-    #if self.geninfo and self.systematics:
-    #    process.JetPropertiesAK8Clean.properties.extend(["jerFactorUp","jerFactorDown"])
-    #    process.JetPropertiesAK8Clean.jerFactorUp = cms.vstring(JetAK8CleanTagJERup.value())
-    #    process.JetPropertiesAK8Clean.jerFactorDown = cms.vstring(JetAK8CleanTagJERdown.value())
-    #    self.VectorDouble.extend([
-    #        'JetPropertiesAK8Clean:jerFactorUp(JetsAK8Clean_jerFactorUp)',
-    #        'JetPropertiesAK8Clean:jerFactorDown(JetsAK8Clean_jerFactorDown)',
-    #    ])
+    if self.geninfo and self.systematics:
+        process.JetPropertiesAK8Clean.properties.extend(["jerFactorUp","jerFactorDown"])
+        process.JetPropertiesAK8Clean.jerFactorUp = cms.vstring(JetAK8CleanTagJERup.value())
+        process.JetPropertiesAK8Clean.jerFactorDown = cms.vstring(JetAK8CleanTagJERdown.value())
+        self.VectorDouble.extend([
+            'JetPropertiesAK8Clean:jerFactorUp(JetsAK8Clean_jerFactorUp)',
+            'JetPropertiesAK8Clean:jerFactorDown(JetsAK8Clean_jerFactorDown)',
+        ])
 
     ####End of GEC added systematics
 
