@@ -106,6 +106,59 @@ def reclusterZinv(self, process, cleanedCandidates, suff):
     process.JetPropertiesAK8Clean.neutralPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:neutralPuppiMultiplicity")
     process.JetPropertiesAK8Clean.photonPuppiMultiplicity = cms.vstring("puppiSpecificAK8Clean:photonPuppiMultiplicity")
 
+    ###Add Jet systematics
+    #list of clean tags - ignore jet ID for jets mathcing these objects
+    SkipTag = cms.VInputTag(
+        cms.InputTag('LeptonsNew:IdMuon'),
+        cms.InputTag('LeptonsNew:IdElectron'),
+    )
+
+    if self.geninfo and self.systematics:
+        process, JetAK8CleanTagJECTmp, JetAK8CleanTagJECup, JetAK8CleanTagJECdown, JetAK8CleanTagJERup, JetAK8CleanTagJERdown, JetAK8CleanTag = self.JetVariations(process, JetAK8CleanTag, SkipTag, suff="AK8", vars="makeJetVarsAK8")
+
+    elif not self.geninfo:
+        # get JEC unc for data
+        process, JetAK8CleanJECTmp, _ = JetDepot(process,
+            JetTag=JetAK8Clean,
+            jecUncDir=0,
+            storeJec=True, # get JEC unc value (in intermediate tag Tmp)
+            doSmear=False,
+                                                 
+        )
+        # append unc to central collection
+        process, JetAK8Clean = addJetInfo(process, JetAK8Clean, [JetAK8CleanJECTmp.value()], [])
+
+    #if self.geninfo:
+        # finally, do central smearing and replace jet tag
+    #    process, _, JetAK8Clean = JetDepot(process,
+    #        JetTag=JetAK8Clean,
+    #        jecUncDir=0,
+    #        doSmear=True,
+    #        jerUncDir=0,
+    #        storeJer=2, # get central jet smearing factor
+    #    )
+
+    if self.systematics:
+        process.JetPropertiesAK8Clean.properties.extend(["jecUnc"])
+        process.JetPropertiesAK8Clean.jecUnc = cms.vstring(JetAK8CleanTagJECTmp.value())
+        self.VectorDouble.extend([
+            'JetPropertiesAK8Clean:jecUnc(JetsAK8Clean_jecUnc)',
+        ])
+
+
+
+    #if self.geninfo and self.systematics:
+    #    process.JetPropertiesAK8Clean.properties.extend(["jerFactorUp","jerFactorDown"])
+    #    process.JetPropertiesAK8Clean.jerFactorUp = cms.vstring(JetAK8CleanTagJERup.value())
+    #    process.JetPropertiesAK8Clean.jerFactorDown = cms.vstring(JetAK8CleanTagJERdown.value())
+    #    self.VectorDouble.extend([
+    #        'JetPropertiesAK8Clean:jerFactorUp(JetsAK8Clean_jerFactorUp)',
+    #        'JetPropertiesAK8Clean:jerFactorDown(JetsAK8Clean_jerFactorDown)',
+    #    ])
+
+    ####End of GEC added systematics
+
+
     ### end AK8 detour
 
     # do CHS for jet clustering
