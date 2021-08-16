@@ -1,6 +1,6 @@
-import re,sys,getopt,urllib2,json,os
+import re,sys,getopt,urllib2,json,os,getpass,warnings
 # check os
-slc = os.environ['SCRAM_ARCH'].split('_')[0]
+#slc = os.environ['SCRAM_ARCH'].split('_')[0]
 extra_paths = [
     "/cvmfs/cms.cern.ch/share/cms/crab-prod/3.3.2005-bcolbf/lib/",
 ]
@@ -9,6 +9,28 @@ from dbs.apis.dbsClient import DbsApi
 from optparse import OptionParser
 from collections import defaultdict
 from TreeMaker.WeightProducer.MCSample import MCSample
+
+def getHosted(dataset):
+    rucio_path = '/cvmfs/cms.cern.ch/rucio/x86_64/slc7/py2/current'
+    os.environ['RUCIO_HOME'] = rucio_path
+    os.environ['RUCIO_ACCOUNT'] = getpass.getuser()
+    sys.path.insert(0,rucio_path+'/lib/python2.7/site-packages/')
+
+    warnings.filterwarnings("ignore", message=".*cryptography.*")
+    from rucio.client.replicaclient import ReplicaClient
+    rep_client = ReplicaClient()
+    reps = list(rep_client.list_replicas([{'scope': 'cms', 'name': dataset}]))
+
+    filelist = set()
+    sitelist = defaultdict(int)
+    for rep in reps:
+        for site,state in rep['states'].iteritems():
+            if state=='AVAILABLE':
+                filelist.add(rep['name'])
+                sitelist[site] += 1
+
+    sys.path.pop(0)
+    return filelist, sitelist
 
 def main(args):
     # Read parameters
@@ -78,26 +100,29 @@ def main(args):
                 pfile.write("readFiles = cms.untracked.vstring()\n")
                 pfile.write("secFiles = cms.untracked.vstring()\n")
                 pfile.write("source = cms.Source (\"PoolSource\",fileNames = readFiles, secondaryFileNames = secFiles)\n")
-                
+               
+
+            #get list of hosted sites with Rucio API
+            filelist,sitelist = getHosted(f)
             # get list of hosted files using PhEDEx API
-            filelist = set()
-            sitelist = defaultdict(int)
-            url='https://cmsweb.cern.ch/phedex/datasvc/json/prod/filereplicas?dataset=' + f
-            jstr = urllib2.urlopen(url).read()
-            jstr = jstr.replace("\n", " ")
-            result = json.loads(jstr)
-            for block in result['phedex']['block']:
-                for item in block['file']:
-                    filelist.add(item['name'])
-                    if makese:
-                        for replica in item['replica']:
-                            site = replica['node']
-                            addr = replica['se']
+            #filelist = set()
+            #sitelist = defaultdict(int)
+            #url='https://cmsweb.cern.ch/phedex/datasvc/json/prod/filereplicas?dataset=' + f
+            #jstr = urllib2.urlopen(url).read()
+            #jstr = jstr.replace("\n", " ")
+            #result = json.loads(jstr)
+            #for block in result['phedex']['block']:
+                #for item in block['file']:
+                    #filelist.add(item['name'])
+                    #if makese:
+                        #for replica in item['replica']:
+                            #site = replica['node']
+                            #addr = replica['se']
                             # safety checks
-                            if site is None: continue
-                            if addr is None: addr = ""
+                            #if site is None: continue
+                            #if addr is None: addr = ""
                             ## if (site,addr) not in sitelist.keys(): sitelist[(site,addr)] = 0
-                            sitelist[(site,addr)] += 1
+                            #sitelist[(site,addr)] += 1
     
             # get dataset info - detail only needed in makewp case
             nevents = 0
@@ -117,18 +142,20 @@ def main(args):
                 nfiles_tot = len(filelist)
                 # calculate dataset fraction (presence) in % and check for completion
                 highest_percent = 0
-                for site,addr in sitelist:
-                    this_percent = float(sitelist[(site,addr)])/float(nfiles_tot)*100
-                    sitelist[(site,addr)] = this_percent
+                for site in sitelist:
+                    this_percent = float(sitelist[site])/float(nfiles_tot)*100
+                    sitelist[site] = this_percent
                     if this_percent > highest_percent: highest_percent = this_percent
+                    print "   Site: ",site
+                    print "   Percent Stored: ",this_percent
             
                 sfile.write(f+"\n")
                 if highest_percent < 100:
                     sfile.write("  !!! No site has complete dataset !!! ( Highest: "+str(highest_percent)+"% )\n")
-                for site,addr in sorted(sitelist):
-                    this_percent = sitelist[(site,addr)]
+                for site in sorted(sitelist):
+                    this_percent = sitelist[site]
                     if this_percent==highest_percent:
-                        sfile.write("  "+site+" ("+addr+")\n")
+                        sfile.write("  "+site+"\n")
     
             if makepy:
                 #sort list of files for consistency
@@ -165,6 +192,13 @@ def main(args):
                     if len(ff)>1: line = line+" # subtotal = "+str(nevents_all[i])+"\n"
                     else: line = line+"\n"
                 wfile.write(line)
+        
+    if makewp:
+        wfile.close()
+    if makese:
+        sfile.close()
+            
+    os._exit(0)
 
 if __name__ == '__main__':
     import sys
