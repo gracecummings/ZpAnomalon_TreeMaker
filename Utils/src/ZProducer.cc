@@ -87,8 +87,8 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 		subMuons.push_back(mu2);
 		//throw exceptions
 		//size_t leadIdx = std::distance(iL1,muons->begin());
-		std::cout<<"The lead muon pT is        "<<mu1.pt()<<std::endl;
-		std::cout<<"The sublead muon pT is        "<<mu2.pt()<<std::endl;
+		//std::cout<<"The lead muon pT is        "<<mu1.pt()<<std::endl;
+		//std::cout<<"The sublead muon pT is        "<<mu2.pt()<<std::endl;
 		//std::cout<<"The lead muon pT at IDx is "<<muons->at(leadIdx).pt()<<std::endl;
 		//std::cout<<"--------"<<std::endl;
 		findZ = true;
@@ -172,8 +172,8 @@ void ZProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 		aZlist.push_back(aZ);
 		leadElectrons.push_back(e1);
 		subElectrons.push_back(e2);
-		std::cout<<"The lead electron pT is:  "<< e1.pt() << std::endl;
-		std::cout<<"The sublead electron pT:  "<< e2.pt() <<std::endl;
+		//std::cout<<"The lead electron pT is:  "<< e1.pt() << std::endl;
+		//std::cout<<"The sublead electron pT:  "<< e2.pt() <<std::endl;
 		findZ = true;
 	      }
 	    }
