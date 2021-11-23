@@ -60,5 +60,5 @@ if __name__=='__main__':
         jdl.write("Queue 1\n")#Not sure about this one
         jdl.close()
         os.system("condor_submit {0}".format(jdlName))
-        #os.system("condor_rm -name lpcschedd1.fnal.gov {0}".format(id))
+        os.system("condor_rm -name lpcschedd3.fnal.gov {0}".format(id))
         

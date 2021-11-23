@@ -48,7 +48,8 @@ if __name__=='__main__':
     print "Number of files produced: ",len(fl)
 
 
-    fchecknames = glob.glob("../../python/"+mcdir+"/"+samp+"*")
+    #fchecknames = glob.glob("../../python/"+mcdir+"/"+samp+"*")
+    fchecknames = glob.glob("/uscms/home/gcumming/nobackup/work_2019_summer/TreeMakerGarden/CMSSW_10_2_21/src/TreeMaker/Production/python/"+mcdir+"/"+samp+"*")
 
     fcheck = open(fchecknames[0],"r")
     fcheckl = fcheck.readlines()
