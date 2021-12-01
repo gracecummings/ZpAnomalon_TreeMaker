@@ -35,9 +35,16 @@ if __name__=='__main__':
     
     print "Counting for sample ",name
 
+    #print"Some debug for 2016 counting"
+    #print"   An example file: ",fl[0]
+    #print"   Gathering the directory of the files: ",mcdir
+    #print"   The index: ",iniidx
+
     if "Run" in mcdir:
         fl.sort(key = lambda x:x.split("_")[1])
-        flnums = [x.split("_")[1] for x in fl]
+        #print fl[:10]
+        flnums = [x.split("_")[-2] for x in fl]
+        #print flnums[:10]
     else:
         fl.sort(key = lambda x:x.split('pythia8_')[-1].split("_RA")[0])
         flnums = [x.split('pythia8_')[-1].split("_RA")[0] for x in fl]
@@ -51,6 +58,7 @@ if __name__=='__main__':
     #fchecknames = glob.glob("../../python/"+mcdir+"/"+samp+"*")
     fchecknames = glob.glob("/uscms/home/gcumming/nobackup/work_2019_summer/TreeMakerGarden/CMSSW_10_2_21/src/TreeMaker/Production/python/"+mcdir+"/"+samp+"*")
 
+    print "Comparing the count to file ",fchecknames[0]
     fcheck = open(fchecknames[0],"r")
     fcheckl = fcheck.readlines()
     numberfiles = 0
