@@ -32,12 +32,12 @@ class Scenario:
             )
         elif sname == "Summer16v3":
             self.set_vars(
-                globaltag="94X_mcRun2_asymptotic_v3",
+                globaltag="102X_mcRun2_asymptotic_v8",
                 tagname="PAT",
                 hlttagname="HLT",
                 geninfo=True,
                 jecfile=self.absdatapath+"/jec/Summer16_07Aug2017_V11_MC",
-                jerfile=self.absdatapath+"/jer/Summer16_25nsV1_MC",
+                jerfile=self.absdatapath+"/jer/Summer16_25nsV1b_MC",
                 pufile=self.reldatapath+"/PileupHistograms_2016_69mb_pm5.root",
                 era="Run2_2016",
                 localera="TM2016",
@@ -184,7 +184,7 @@ class Scenario:
         elif sname == "2017ReReco31Mar":
             self.set_vars(
                 #globaltag="94X_dataRun2_v17",#does not work in this release
-                globaltag ="102X_dataRun2_v12",
+                globaltag ="102X_dataRun2_v14",
                 tagname="PAT",
                 hlttagname="HLT",
                 jsonfile=self.absdatapath+"/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt",

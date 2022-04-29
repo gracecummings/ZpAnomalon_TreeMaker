@@ -1,7 +1,7 @@
 flist = {
     "scenario": "Fall17",
     "samples": [
-        #['Fall17.TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8'],
+        ['Fall17.TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8'],
         #['Fall17.TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8'],
         #['Fall17.TTToSemiLeptonic_TuneCP2_PSweights_13TeV-powheg-pythia8'],
         #['Fall17.TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8'],
@@ -21,7 +21,7 @@ flist = {
         #['Fall17.TTToSemiLeptonic_hdampDOWN_TuneCP5_PSweights_13TeV-powheg-pythia8'], 
         #['Fall17.TTToSemiLeptonic_hdampUP_TuneCP5_PSweights_13TeV-powheg-pythia8'], 
         #['Fall17.TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_new_pmx_cff.py'],
-        ['Fall17.TTToHadronic_TuneCP5_13TeV-powheg-pythia8_new_pmx_cff.py'],
-        ['Fall17.TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_new_pmx_cff.py'],
+        #['Fall17.TTToHadronic_TuneCP5_13TeV-powheg-pythia8_new_pmx_cff.py'],
+        #['Fall17.TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_new_pmx_cff.py'],
     ]
 }

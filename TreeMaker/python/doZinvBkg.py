@@ -340,9 +340,9 @@ def doZinvBkg(self,process):
     )
         # if there are no leptons in the event, just remove high-pt photons (GJet)
     # otherwise, just remove leptons (DY)
-    process.selectedXons = cms.EDProducer("CandPtrPrefer",
-        first = cms.InputTag("selectedZleptons"),second = cms.InputTag("goodPhotons","highpt")
-    )
+    #process.selectedXons = cms.EDProducer("CandPtrPrefer",
+    #    first = cms.InputTag("selectedZleptons"),second = cms.InputTag("goodPhotons","highpt")
+    #)
     
     # do the removal
     # if putEmpty is set to true, this will output an empty collection if the "veto" collection is empty
@@ -350,7 +350,7 @@ def doZinvBkg(self,process):
     # "clean" branches in the ntuple will not be filled in this case; (e.g. Jetsclean.size()==0)
     # the corresponding non-clean branches should be used instead for those events
     process.cleanedCandidates =  cms.EDProducer("PackedCandPtrProjector",
-        src = cms.InputTag("packedPFCandidates"), veto = cms.InputTag("selectedXons"),
+        src = cms.InputTag("packedPFCandidates"), veto = cms.InputTag("selectedZleptons"),
                                                 putEmpty = cms.bool(True)
     )
     
