@@ -99,7 +99,7 @@ class Scenario:
             )
         elif sname == "2016ReReco17Jul":
             self.set_vars(
-                globaltag="94X_dataRun2_v10",
+                globaltag="102X_dataRun2_v14",
                 tagname="DQM",
                 hlttagname="HLT",
                 jsonfile=self.absdatapath+"/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt",
